@@ -9,13 +9,13 @@ BPurple			= '\033[1;35m'    # Purple
 BCyan			= '\033[1;36m'    # Cyan
 
 
-CC				= c++  
+CC				= c++
 CFLAGS			= -g -Wall -Wextra -Werror -std=c++98 -MMD -MP -pedantic
 RM 				= rm -rf
 
-SRC				= main.cpp
+SRC				= main.cpp FileParser.cpp Server.cpp ServerLocation.cpp Utils.cpp
 
-INCPATH  		= -I./srcs -I./srcs/req -I./srcs/resp -I./srcs/serv 
+INCPATH  		= -I./srcs -I./srcs/req -I./srcs/resp -I./srcs/serv
 
 OBJDIR			= objects
 OBJ				= $(SRC:%.cpp=$(OBJDIR)/%.o)
@@ -35,9 +35,9 @@ clean:
 	@$(RM) $(OBJ_DIR)
 
 fclean: clean
-	@$(RM) $(NAME) 
+	@$(RM) $(NAME)
 
-re: 
+re:
 	@fclean all
 
 run:
@@ -50,6 +50,8 @@ run:
 	@echo "\n\033[1;35m🌐 Exec WebServ\033[0m"
 	@./$(NAME) default.conf
 
+valgrind: all
+	valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./webserv
 
 $(OBJDIR):
 	mkdir -p objects
