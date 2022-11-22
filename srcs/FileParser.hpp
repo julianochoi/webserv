@@ -17,7 +17,7 @@ class FileParser {
 		FileParser& operator=(FileParser const &file_parser);
 		~FileParser(void);
 
-		void parse(void);
+		std::vector<Server> parse(void);
 };
 
 #endif

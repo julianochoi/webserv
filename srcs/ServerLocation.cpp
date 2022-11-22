@@ -3,15 +3,15 @@
 
 ServerLocation::ServerLocation(void) : _autoindex(false) {}
 
-ServerLocation::ServerLocation(Server const &server) {
-	_http_methods = server.http_methods();
-	_http_redirect = server.http_redirect();
-	_root = server.root();
-	_autoindex = server.autoindex();
-	_index = server.index();
-	_cgi_extension = server.cgi_extension();
-	_erros_pages = server.erros_pages();
-	_body_size_limit = server.body_size_limit();
+ServerLocation::ServerLocation(Server const &server_location) {
+	_http_methods = server_location.http_methods();
+	_http_redirect = server_location.http_redirect();
+	_root = server_location.root();
+	_autoindex = server_location.autoindex();
+	_index = server_location.index();
+	_cgi_extension = server_location.cgi_extension();
+	_erros_pages = server_location.erros_pages();
+	_body_size_limit = server_location.body_size_limit();
 }
 
 ServerLocation::ServerLocation(ServerLocation const &server_location) {

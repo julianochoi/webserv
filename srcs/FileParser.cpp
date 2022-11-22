@@ -13,10 +13,9 @@ FileParser &FileParser::operator=(FileParser const &file_parser) {
 
 FileParser::~FileParser(void) {}
 
-void FileParser::parse(void) {
+std::vector<Server> FileParser::parse(void) {
 	std::ifstream	fs;
 	std::string		line;
-	std::vector<Server> servers;
 
 	fs.open("./default.conf", std::ifstream::in);
 
@@ -29,6 +28,8 @@ void FileParser::parse(void) {
 		_parse_server(fs, line);
 	}
 	fs.close();
+
+	return _servers;
 }
 
 void FileParser::_parse_server(std::ifstream &fs, std::string line) {
@@ -36,7 +37,6 @@ void FileParser::_parse_server(std::ifstream &fs, std::string line) {
 
 		if (line == "server {") {
 			server.parse_server_attributes(fs, line);
-			std::cout << server << std::endl;
+			_servers.push_back(server);
 		}
-
 }

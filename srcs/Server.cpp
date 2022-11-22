@@ -4,11 +4,33 @@
 Server::Server(void) : _autoindex(false) {}
 
 Server::Server(Server const &server) {
-	(void)server;
+	_server_names = server.server_names();
+	_host = server.host();
+	_port = server.port();
+	_erros_pages = server.erros_pages();
+	_http_methods = server.http_methods();
+	_http_redirect = server.http_redirect();
+	_root = server.root();
+	_body_size_limit = server.body_size_limit();
+	_autoindex = server.autoindex();
+	_index = server.index();
+	_locations = server.locations();
+	_cgi_extension = server.cgi_extension();
 }
 
 Server &Server::operator=(Server const &server) {
-	(void)server;
+	_server_names = server.server_names();
+	_host = server.host();
+	_port = server.port();
+	_erros_pages = server.erros_pages();
+	_http_methods = server.http_methods();
+	_http_redirect = server.http_redirect();
+	_root = server.root();
+	_body_size_limit = server.body_size_limit();
+	_autoindex = server.autoindex();
+	_index = server.index();
+	_locations = server.locations();
+	_cgi_extension = server.cgi_extension();
 	return *this;
 }
 
