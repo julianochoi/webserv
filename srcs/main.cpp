@@ -1,13 +1,15 @@
-#include <Server.hpp>
-#include <FileParser.hpp>
+#include <WebServ.hpp>
 
 int	main(int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
 
-	FileParser fileParser;
-	fileParser.parse();
+	WebServ web_serv;
+	web_serv.init();
+	web_serv.event_loop();
+
+	// std::cout << web_serv << std::endl;
 
 	return (0);
 }
