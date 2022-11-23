@@ -28,4 +28,13 @@ namespace Utils {
 
 			return tokens;
 	}
+
+	void handle_signal(int signal) {
+		exit(signal);
+	}
+
+	void listen_signals(void) {
+		signal(SIGINT, handle_signal);
+	}
+
 }

@@ -27,7 +27,7 @@ void WebServ::event_loop(void) {
 	int connections;
 
 	while (true) {
-		connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), -1); // TODO - should free this leeks
+		connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), -1);
 		std::cout << "conn " << connections << std::endl;
 		if (connections == -1)
 			throw std::exception();

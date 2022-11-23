@@ -1,11 +1,15 @@
 #include <WebServ.hpp>
+#include <Utils.hpp>
+
+WebServ web_serv;
 
 int	main(int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
 
-	WebServ web_serv;
+	Utils::listen_signals();
+
 	web_serv.init();
 	web_serv.event_loop();
 
