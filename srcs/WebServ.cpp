@@ -17,7 +17,7 @@ std::vector<Server> WebServ::servers(void) const { return _servers; }
 
 
 void WebServ::init(void) {
-	FileParser					fileParser;
+	FileParser	fileParser;
 
 	_servers = fileParser.parse();
 	_start_listening();
@@ -25,27 +25,18 @@ void WebServ::init(void) {
 
 void WebServ::event_loop(void) {
 	int connections;
-	int client_fd;
-	int16_t revents;
 
 	while (true) {
 		connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), -1); // TODO - should free this leeks
 		std::cout << "conn " << connections << std::endl;
+		if (connections == -1)
+			throw std::exception();
+
 		for (std::vector<pollfd>::const_iterator pollfd = _pollfds.begin(); pollfd != _pollfds.end(); pollfd++)
-		{
-			revents = pollfd->revents;
-			if (revents) {
-				std::cout << "FD " << pollfd->fd << std::endl;
-				std::cout << revents << std::endl;
-				client_fd = accept(pollfd->fd, NULL, NULL);
-				std::cout << client_fd << std::endl;
-				send(client_fd, "HTTP/1.1 200 OK\n", 16, 0);
-				send(client_fd, "Content-Type: text/html\n", 24, 0);
-				send(client_fd, "Content-Length: 48\n\n", 20, 0);
-				send(client_fd, "<html><body><h1>Hello, World!</h1></body></html>", 48, 0);
-				close(client_fd);
+			if (pollfd->revents) {
+				Http http = Http(*pollfd);
+				http.handle();
 			}
-		}
 	}
 }
 
