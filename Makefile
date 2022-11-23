@@ -13,7 +13,8 @@ CC				= c++
 CFLAGS			= -g -Wall -Wextra -Werror -std=c++98 -MMD -MP -pedantic
 RM 				= rm -rf
 
-SRC				= main.cpp FileParser.cpp Server.cpp ServerLocation.cpp Utils.cpp WebServ.cpp
+SRC				= main.cpp FileParser.cpp Http.cpp Request.cpp Response.cpp \
+						Server.cpp ServerLocation.cpp Utils.cpp WebServ.cpp
 
 INCPATH  		= -I./srcs -I./srcs/req -I./srcs/resp -I./srcs/serv
 
