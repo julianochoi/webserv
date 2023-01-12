@@ -42,22 +42,19 @@ void WebServ::event_loop(void) {
 
 void WebServ::_start_listening(void) {
 	int									socket_fd;
-	struct sockaddr_in	sockaddr_in;
 
 	for (std::vector<Server>::const_iterator server = _servers.begin(); server != _servers.end(); server++) {
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_fd == -1)
 			throw std::exception();
 
-		sockaddr_in.sin_family = AF_INET;
-		sockaddr_in.sin_port = htons(server->port());
-		sockaddr_in.sin_addr.s_addr = htonl(INADDR_ANY); // htonl(INADDR_LOOPBACK);
+		sockaddr bind_host_addrinfo = server->host_addrinfo();
 
-		std::cout << 	sockaddr_in.sin_port << std::endl;
+		std::cout << 	server->host() << std::endl;
 		std::cout << 	server->port() << std::endl;
-		std::cout << sockaddr_in.sin_addr.s_addr << std::endl;
+		std::cout << 	&bind_host_addrinfo << std::endl;
 
-		if (bind(socket_fd, (struct sockaddr *)&sockaddr_in, sizeof(sockaddr_in)))
+		if (bind(socket_fd, &bind_host_addrinfo, server->host_addrinfo_len()))
 			throw std::exception();
 
 		if (listen(socket_fd, 500))

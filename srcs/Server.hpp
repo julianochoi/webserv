@@ -6,6 +6,8 @@
 #include <vector>
 #include <fstream>
 #include <map>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <ServerLocation.hpp>
 #include <Utils.hpp>
 
@@ -14,6 +16,8 @@ class ServerLocation;
 class Server {
 	private:
 		std::vector<std::string>							_server_names;
+		sockaddr															_host_addrinfo;
+		socklen_t															_host_addrinfo_len;
 		std::string														_host;
 		int																		_port;
 		std::map<int, std::string>						_erros_pages;
@@ -39,6 +43,9 @@ class Server {
 		void	_set_autoindex_attribute(std::vector<std::string> line_tokens);
 		void	_set_index_attribute(std::vector<std::string> line_tokens);
 
+		void _deep_copy_host_addrinfo(Server const &server);
+		void _deep_copy_results_addrinfo(struct addrinfo* results);
+
 	public:
 		Server(void);
 		Server(Server const &server);
@@ -48,6 +55,8 @@ class Server {
 		void	parse_server_attributes(std::ifstream &fs, std::string line);
 
 		std::vector<std::string>							server_names(void) const;
+		sockaddr															host_addrinfo(void) const;
+		socklen_t															host_addrinfo_len(void) const;
 		std::string														host(void) const;
 		int																		port(void) const;
 		std::map<int, std::string>						erros_pages(void) const;

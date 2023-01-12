@@ -5,6 +5,7 @@ Server::Server(void) : _autoindex(false) {}
 
 Server::Server(Server const &server) {
 	_server_names = server.server_names();
+	_deep_copy_host_addrinfo(server);
 	_host = server.host();
 	_port = server.port();
 	_erros_pages = server.erros_pages();
@@ -20,6 +21,7 @@ Server::Server(Server const &server) {
 
 Server &Server::operator=(Server const &server) {
 	_server_names = server.server_names();
+	_deep_copy_host_addrinfo(server);
 	_host = server.host();
 	_port = server.port();
 	_erros_pages = server.erros_pages();
@@ -55,6 +57,8 @@ void	Server::parse_server_attributes(std::ifstream &fs, std::string line) {
 }
 
 std::vector<std::string> Server::server_names(void) const { return _server_names; }
+socklen_t Server::host_addrinfo_len(void) const { return _host_addrinfo_len; }
+sockaddr Server::host_addrinfo(void) const { return _host_addrinfo; }
 std::string Server::host(void) const { return _host; }
 int Server::port(void) const { return _port; }
 std::map<int, std::string> Server::erros_pages(void) const { return _erros_pages; }
@@ -101,9 +105,27 @@ void	Server::_set_server_attributes(std::vector<std::string> line_tokens) {
 
 void	Server::_set_listen_attribute(std::vector<std::string> line_tokens) {
 	std::vector<std::string> listen_atributes = Utils::string_split(line_tokens[1], ':');
+	struct addrinfo hints;
+	struct addrinfo* results;
+	int get_addr_status;
 
+	hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+	hints.ai_socktype = SOCK_STREAM; /* Stream socket */
+	hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
+	hints.ai_protocol = IPPROTO_TCP;          /* tcp protocol */
+	hints.ai_canonname = NULL;
+	hints.ai_addr = NULL;
+	hints.ai_next = NULL;
+
+	get_addr_status = getaddrinfo(listen_atributes[0].c_str(), listen_atributes[1].c_str(), &hints, &results);
+	if (get_addr_status != 0) {
+		std::cerr << "getaddrinfo:" << gai_strerror(get_addr_status) << std::endl;
+		throw std::exception();
+	}
+	this->_deep_copy_results_addrinfo(results);
 	this->_host = listen_atributes[0];
 	this->_port = std::atoi(listen_atributes[1].c_str());
+	freeaddrinfo(results);
 }
 
 void	Server::_set_server_name_attribute(std::vector<std::string> line_tokens) {
@@ -145,6 +167,44 @@ void	Server::_set_autoindex_attribute(std::vector<std::string> line_tokens) {
 void	Server::_set_index_attribute(std::vector<std::string> line_tokens) {
 	for(long unsigned int j = 1; j < line_tokens.size(); j++)
 		this->_index.push_back(line_tokens[j]);
+}
+
+void Server::_deep_copy_host_addrinfo(Server const &server) {
+	_host_addrinfo.sa_data[0] = server.host_addrinfo().sa_data[0];
+	_host_addrinfo.sa_data[1] = server.host_addrinfo().sa_data[1];
+	_host_addrinfo.sa_data[2] = server.host_addrinfo().sa_data[2];
+	_host_addrinfo.sa_data[3] = server.host_addrinfo().sa_data[3];
+	_host_addrinfo.sa_data[4] = server.host_addrinfo().sa_data[4];
+	_host_addrinfo.sa_data[5] = server.host_addrinfo().sa_data[5];
+	_host_addrinfo.sa_data[6] = server.host_addrinfo().sa_data[6];
+	_host_addrinfo.sa_data[7] = server.host_addrinfo().sa_data[7];
+	_host_addrinfo.sa_data[8] = server.host_addrinfo().sa_data[8];
+	_host_addrinfo.sa_data[9] = server.host_addrinfo().sa_data[9];
+	_host_addrinfo.sa_data[10] = server.host_addrinfo().sa_data[10];
+	_host_addrinfo.sa_data[11] = server.host_addrinfo().sa_data[11];
+	_host_addrinfo.sa_data[12] = server.host_addrinfo().sa_data[12];
+	_host_addrinfo.sa_data[13] = server.host_addrinfo().sa_data[13];
+	_host_addrinfo.sa_family = server.host_addrinfo().sa_family;
+	_host_addrinfo_len = server.host_addrinfo_len();
+}
+
+void Server::_deep_copy_results_addrinfo(struct addrinfo* results) {
+	this->_host_addrinfo.sa_data[0] = results->ai_addr->sa_data[0];
+	this->_host_addrinfo.sa_data[1] = results->ai_addr->sa_data[1];
+	this->_host_addrinfo.sa_data[2] = results->ai_addr->sa_data[2];
+	this->_host_addrinfo.sa_data[3] = results->ai_addr->sa_data[3];
+	this->_host_addrinfo.sa_data[4] = results->ai_addr->sa_data[4];
+	this->_host_addrinfo.sa_data[5] = results->ai_addr->sa_data[5];
+	this->_host_addrinfo.sa_data[6] = results->ai_addr->sa_data[6];
+	this->_host_addrinfo.sa_data[7] = results->ai_addr->sa_data[7];
+	this->_host_addrinfo.sa_data[8] = results->ai_addr->sa_data[8];
+	this->_host_addrinfo.sa_data[9] = results->ai_addr->sa_data[9];
+	this->_host_addrinfo.sa_data[10] = results->ai_addr->sa_data[10];
+	this->_host_addrinfo.sa_data[11] = results->ai_addr->sa_data[11];
+	this->_host_addrinfo.sa_data[12] = results->ai_addr->sa_data[12];
+	this->_host_addrinfo.sa_data[13] = results->ai_addr->sa_data[13];
+	this->_host_addrinfo.sa_family = results->ai_addr->sa_family;
+	this->_host_addrinfo_len = results->ai_addrlen;
 }
 
 std::ostream &operator<<(std::ostream &out, const Server &server)
