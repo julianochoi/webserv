@@ -35,6 +35,7 @@ namespace Utils {
 
 	void listen_signals(void) {
 		signal(SIGINT, handle_signal);
+		signal(SIGQUIT, handle_signal);
 	}
 
 }

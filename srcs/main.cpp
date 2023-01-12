@@ -10,8 +10,13 @@ int	main(int argc, char **argv)
 
 	Utils::listen_signals();
 
-	web_serv.init();
-	web_serv.event_loop();
+	try {
+		web_serv.init();
+		web_serv.event_loop();
+	} catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+		return(1);
+	}
 
 	// std::cout << web_serv << std::endl;
 
