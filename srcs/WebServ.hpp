@@ -24,7 +24,7 @@ class WebServ {
 
 		std::vector<Server> servers(void) const;
 
-		void init(void);
+		void init(int argc, char **argv);
 		void event_loop(void);
 };
 

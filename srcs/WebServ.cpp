@@ -16,10 +16,10 @@ WebServ::~WebServ(void) {}
 std::vector<Server> WebServ::servers(void) const { return _servers; }
 
 
-void WebServ::init(void) {
+void WebServ::init(int argc, char **argv) {
 	FileParser	fileParser;
 
-	_servers = fileParser.parse();
+	_servers = fileParser.parse(argc, argv);
 	_start_listening();
 }
 

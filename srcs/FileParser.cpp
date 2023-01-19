@@ -13,14 +13,17 @@ FileParser &FileParser::operator=(FileParser const &file_parser) {
 
 FileParser::~FileParser(void) {}
 
-std::vector<Server> FileParser::parse(void) {
+std::vector<Server> FileParser::parse(int argc, char **argv) {
 	std::ifstream	fs;
 	std::string		line;
 
-	fs.open("./default.conf", std::ifstream::in);
+	if (argc != 2)
+		throw InvalidNumberOfArgs();
+
+	fs.open(argv[1], std::ifstream::in);
 
 	if(!fs.is_open())
-		throw std::exception();
+		throw InvalidConfigFile();
 
 	while (!fs.eof())
 	{

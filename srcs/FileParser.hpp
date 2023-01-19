@@ -17,7 +17,23 @@ class FileParser {
 		FileParser& operator=(FileParser const &file_parser);
 		~FileParser(void);
 
-		std::vector<Server> parse(void);
+		std::vector<Server> parse(int argc, char **argv);
+
+		class InvalidNumberOfArgs : public std::exception
+		{
+			public:
+				const char* what() const throw(){
+					return "Invalid Number of Arguments - should be: ./webserv [config file]";
+				};
+		};
+
+		class InvalidConfigFile : public std::exception
+		{
+			public:
+				const char* what() const throw(){
+					return "Invalid Config File";
+				};
+		};
 };
 
 #endif

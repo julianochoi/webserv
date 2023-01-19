@@ -38,8 +38,7 @@ clean:
 fclean: clean
 	@$(RM) $(NAME)
 
-re:
-	@fclean all
+re: fclean all
 
 run:
 	clear
@@ -52,7 +51,7 @@ run:
 	@./$(NAME) default.conf
 
 valgrind: all
-	valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./webserv
+	valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./webserv default.conf
 
 $(OBJDIR):
 	mkdir -p objects
