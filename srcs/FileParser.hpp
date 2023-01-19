@@ -22,17 +22,13 @@ class FileParser {
 		class InvalidNumberOfArgs : public std::exception
 		{
 			public:
-				const char* what() const throw(){
-					return "Invalid Number of Arguments - should be: ./webserv [config file]";
-				};
+				const char* what() const throw(){ return "Invalid Number of Arguments - should be: ./webserv [config file]"; };
 		};
 
 		class InvalidConfigFile : public std::exception
 		{
 			public:
-				const char* what() const throw(){
-					return "Invalid Config File";
-				};
+				const char* what() const throw(){ return "Invalid Config File"; };
 		};
 };
 

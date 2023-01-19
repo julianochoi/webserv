@@ -28,9 +28,8 @@ void WebServ::event_loop(void) {
 
 	while (true) {
 		connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), -1);
-		std::cout << "conn " << connections << std::endl;
 		if (connections == -1)
-			throw std::exception();
+			throw PoolError();
 
 		for (std::vector<pollfd>::const_iterator pollfd = _pollfds.begin(); pollfd != _pollfds.end(); pollfd++)
 			if (pollfd->revents) {
@@ -44,21 +43,19 @@ void WebServ::_start_listening(void) {
 	int									socket_fd;
 
 	for (std::vector<Server>::const_iterator server = _servers.begin(); server != _servers.end(); server++) {
+		std::cout << YELLOW << "Initializing server - " << server->host() << ":" << server->port() << COLOR_OFF << std::endl;
+
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_fd == -1)
-			throw std::exception();
+			throw SocketInitError();
 
 		sockaddr bind_host_addrinfo = server->host_addrinfo();
 
-		std::cout << 	server->host() << std::endl;
-		std::cout << 	server->port() << std::endl;
-		std::cout << 	&bind_host_addrinfo << std::endl;
-
 		if (bind(socket_fd, &bind_host_addrinfo, server->host_addrinfo_len()))
-			throw std::exception();
+			throw BindInitError();
 
 		if (listen(socket_fd, 500))
-			throw std::exception();
+			throw ListenInitError();
 
 		struct pollfd				pollfd;
 
@@ -66,6 +63,8 @@ void WebServ::_start_listening(void) {
 		pollfd.events = POLLIN;
 
 		_pollfds.push_back(pollfd);
+
+		std::cout << GREEN << "Successfully initialized" << COLOR_OFF << std::endl;
 	}
 }
 

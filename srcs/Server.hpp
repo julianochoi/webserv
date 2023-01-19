@@ -69,6 +69,12 @@ class Server {
 		std::map<std::string, ServerLocation>	locations(void) const;
 		std::string														cgi_extension(void) const;
 		ServerLocation												location(std::string path) const;
+
+	class InvalidHost : public std::exception
+		{
+			public:
+				const char* what() const throw(){ return "Invalid Host"; };
+		};
 };
 
 std::ostream &operator<<(std::ostream &out, const Server &server);

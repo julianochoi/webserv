@@ -17,6 +17,12 @@ class Request {
 		~Request(void);
 
 		int handle(void);
+
+	class ClientConnectionError : public std::exception
+		{
+			public:
+				const char* what() const throw(){ return "Client Connection Error"; };
+		};
 };
 
 std::ostream &operator<<(std::ostream &out, const Request &request);

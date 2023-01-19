@@ -8,6 +8,7 @@
 #include <FileParser.hpp>
 #include <Server.hpp>
 #include <Http.hpp>
+#include <Utils.hpp>
 
 class WebServ {
 	private:
@@ -26,6 +27,30 @@ class WebServ {
 
 		void init(int argc, char **argv);
 		void event_loop(void);
+
+		class SocketInitError : public std::exception
+		{
+			public:
+				const char* what() const throw(){ return "Socket init error"; };
+		};
+
+		class BindInitError : public std::exception
+		{
+			public:
+				const char* what() const throw(){ return "Bind init error"; };
+		};
+
+		class ListenInitError : public std::exception
+		{
+			public:
+				const char* what() const throw(){ return "Listen init error"; };
+		};
+
+		class PoolError : public std::exception
+		{
+			public:
+				const char* what() const throw(){ return "Poll error"; };
+		};
 };
 
 std::ostream &operator<<(std::ostream &out, const WebServ &web_serv);

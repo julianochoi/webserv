@@ -18,7 +18,7 @@ Request::~Request(void) {}
 int	Request::handle(void) {
 	int client_fd = accept(_pollfd.fd, NULL, NULL);
 	if (client_fd == -1)
-		throw std::exception();
+		throw ClientConnectionError();
 	return client_fd;
 }
 

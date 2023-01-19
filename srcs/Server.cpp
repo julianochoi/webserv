@@ -119,9 +119,11 @@ void	Server::_set_listen_attribute(std::vector<std::string> line_tokens) {
 
 	get_addr_status = getaddrinfo(listen_atributes[0].c_str(), listen_atributes[1].c_str(), &hints, &results);
 	if (get_addr_status != 0) {
-		std::cerr << "getaddrinfo:" << gai_strerror(get_addr_status) << std::endl;
+		std::cerr << "Error at Host - " << listen_atributes[0].c_str() << ":" <<
+			listen_atributes[1].c_str() << " - " << gai_strerror(get_addr_status) << std::endl;
+
 		//! LEAK OF getaddrinfo function - freeaddrinfo doesn't resolve
-		throw std::exception();
+		throw InvalidHost();
 	}
 	this->_deep_copy_results_addrinfo(results);
 	this->_host = listen_atributes[0];
