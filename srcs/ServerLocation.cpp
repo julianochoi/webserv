@@ -48,8 +48,8 @@ void	ServerLocation::parse_location_attributes(std::ifstream &fs, std::string li
 	while (!fs.eof())
 	{
 		std::getline(fs, line);
-		line_tokens = Utils::string_split(line, ' ');
-		if (line_tokens.size() >= 1 && line_tokens[0] == "};")
+		line_tokens = Utils::string_split(line, "\t ");
+		if (line_tokens.size() >= 1 && (line_tokens[0] == "};" || line_tokens[0] == "}"))
 			return ;
 		else
 			this->_set_location_attributes(line_tokens);

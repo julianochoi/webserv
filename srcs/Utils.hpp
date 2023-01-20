@@ -22,7 +22,7 @@
 #define COLOR_OFF "\033[0m"
 
 namespace Utils {
-	std::vector<std::string> string_split(const std::string str, char seperator);
+	std::vector<std::string> string_split(const std::string str, std::string seperators);
 	void handle_signal(int signal);
 	void listen_signals(void);
 }

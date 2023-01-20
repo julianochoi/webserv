@@ -1,7 +1,7 @@
 #include <Utils.hpp>
 
 namespace Utils {
-	std::vector<std::string> string_split(const std::string str, char seperator)
+	std::vector<std::string> string_split(const std::string str, std::string seperators)
 	{
 			std::vector<std::string> tokens;
 
@@ -10,7 +10,7 @@ namespace Utils {
 
 			while (++i < len)
 			{
-				while (str[i] == seperator)
+				while (seperators.find(str[i]) != std::string::npos)
 				{
 					i++;
 					continue ;
@@ -18,7 +18,7 @@ namespace Utils {
 
 				start_index = i;
 
-				while (i <= len && str[i] != seperator)
+				while (i <= len && seperators.find(str[i]) == std::string::npos)
 					i++;
 
 				size = i - start_index;

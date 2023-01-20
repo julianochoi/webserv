@@ -44,12 +44,12 @@ void	Server::parse_server_attributes(std::ifstream &fs, std::string line) {
 	while (!fs.eof())
 	{
 		std::getline(fs, line);
-		line_tokens = Utils::string_split(line, ' ');
+		line_tokens = Utils::string_split(line, "\t ");
 		if (line_tokens.empty())
 			continue;
 		if (line_tokens.size() >= 3 && line_tokens[0] == "location" && line_tokens[2] == "{")
 			this->_parse_location_attributes(fs, line, line_tokens[1]);
-		else if (line_tokens.size() >= 1 && line_tokens[0] == "};")
+		else if (line_tokens.size() >= 1 && (line_tokens[0] == "};" || line_tokens[0] == "}"))
 			return ;
 		else
 			this->_set_server_attributes(line_tokens);
@@ -104,7 +104,7 @@ void	Server::_set_server_attributes(std::vector<std::string> line_tokens) {
 }
 
 void	Server::_set_listen_attribute(std::vector<std::string> line_tokens) {
-	std::vector<std::string> listen_atributes = Utils::string_split(line_tokens[1], ':');
+	std::vector<std::string> listen_atributes = Utils::string_split(line_tokens[1], ":");
 	struct addrinfo hints;
 	struct addrinfo* results;
 	int get_addr_status;
