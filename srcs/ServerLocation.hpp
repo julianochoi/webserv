@@ -50,6 +50,48 @@ class ServerLocation {
 		bool																	autoindex(void) const;
 		std::vector<std::string>							index(void) const;
 		std::string														cgi_extension(void) const;
+
+	class InvalidLocationParam : public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Location Param"; };
+	};
+
+	class MissingLocationArgs : public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Missing Location Args"; };
+	};
+
+	class InvalidRoot: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Root"; };
+	};
+
+	class InvalidBodySize: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Body Size"; };
+	};
+
+	class InvalidCGIExtension: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid CGI Extension"; };
+	};
+
+	class InvalidAutoIndexParam: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid AutoIndex - Should be on or off"; };
+	};
+
+	class InvalidRedirect: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Redirect Config"; };
+	};
 };
 
 std::ostream &operator<<(std::ostream &out, ServerLocation const &server_location);

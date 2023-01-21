@@ -5,6 +5,7 @@
 #include <vector>
 #include <csignal>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #define COLOR_OFF "\033[0m"
 #define RED "\033[0;31m"
@@ -23,6 +24,9 @@
 
 namespace Utils {
 	std::vector<std::string> string_split(const std::string str, std::string seperators);
+	bool is_valid_file(const std::string str);
+	bool is_valid_dir(const std::string str);
+	bool is_number(const std::string str);
 	void handle_signal(int signal);
 	void listen_signals(void);
 }

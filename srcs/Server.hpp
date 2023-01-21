@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <ServerLocation.hpp>
+#include <algorithm>
 #include <Utils.hpp>
 
 class ServerLocation;
@@ -70,11 +71,53 @@ class Server {
 		std::string														cgi_extension(void) const;
 		ServerLocation												location(std::string path) const;
 
+	class InvalidServerParam : public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Server Param"; };
+	};
+
+	class MissingServerArgs : public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Missing Server Args"; };
+	};
+
 	class InvalidHost : public std::exception
-		{
-			public:
-				const char* what() const throw(){ return "Invalid Host"; };
-		};
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Host"; };
+	};
+
+	class InvalidRoot: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Root"; };
+	};
+
+	class InvalidBodySize: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Body Size"; };
+	};
+
+	class InvalidCGIExtension: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid CGI Extension"; };
+	};
+
+	class InvalidAutoIndexParam: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid AutoIndex - Should be on or off"; };
+	};
+
+	class InvalidRedirect: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Redirect Config"; };
+	};
 };
 
 std::ostream &operator<<(std::ostream &out, const Server &server);

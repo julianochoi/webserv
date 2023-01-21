@@ -66,6 +66,11 @@ std::vector<std::string> ServerLocation::index(void) const { return _index; }
 std::string ServerLocation::cgi_extension(void) const { return _cgi_extension; }
 
 void	ServerLocation::_set_location_attributes(std::vector<std::string> line_tokens) {
+	if (line_tokens.size() <= 1) {
+		std::cerr << "Param - " << line_tokens[0] << std::endl;
+		throw MissingLocationArgs();
+	}
+
 	if (line_tokens[0] == "root")
 		_set_root_attribute(line_tokens);
 	else if (line_tokens[0] == "error_page")
@@ -80,45 +85,79 @@ void	ServerLocation::_set_location_attributes(std::vector<std::string> line_toke
 		_set_autoindex_attribute(line_tokens);
 	else if (line_tokens[0] == "return")
 		_set_http_redirect_attribute(line_tokens);
-	else if (line_tokens[0] == "root")
-		_set_root_attribute(line_tokens);
 	else if (line_tokens[0] == "index")
 		_set_index_attribute(line_tokens);
+	else if (line_tokens[0][0] != '#') {
+		std::cerr << "Param - " << line_tokens[0] << std::endl;
+		throw InvalidLocationParam();
+	}
 }
 
-
 void	ServerLocation::_set_error_page_attribute(std::vector<std::string> line_tokens) {
+	if (line_tokens.size() < 3) {
+		std::cerr << "Param - " << line_tokens[0] << std::endl;
+		throw MissingLocationArgs();
+	}
+
 	for(long unsigned int j = 1; j < line_tokens.size() - 1; j++)
 		this->_erros_pages[std::atoi(line_tokens[j].c_str())] = line_tokens[line_tokens.size() - 1];
-
 }
 
 void	ServerLocation::_set_client_body_size_attribute(std::vector<std::string> line_tokens) {
+	if (!Utils::is_number(line_tokens[1])) {
+		std::cerr << "Body Size - " << line_tokens[1] << std::endl;
+		throw InvalidBodySize();
+	}
+
 	this->_body_size_limit = std::atoi(line_tokens[1].c_str());
 }
 
 void	ServerLocation::_set_cgi_attribute(std::vector<std::string> line_tokens) {
+	if (line_tokens[1].size() < 2 || line_tokens[1][0] != '.') {
+		std::cerr << "CGI - " << line_tokens[1] << std::endl;
+		throw InvalidCGIExtension();
+	}
+
 	this->_cgi_extension = line_tokens[1];
 }
 
 void	ServerLocation::_set_http_methods_attribute(std::vector<std::string> line_tokens) {
+	// do not need validation - allow any http method name and then only verify it is included
+
 	for(long unsigned int j = 1; j < line_tokens.size(); j++)
 		this->_http_methods.push_back(line_tokens[j]);
 }
 
 void	ServerLocation::_set_http_redirect_attribute(std::vector<std::string> line_tokens) {
+	if (line_tokens.size() != 3 || !Utils::is_number(line_tokens[1].c_str())) {
+		std::cerr << "Redirection error - " << line_tokens[1] << std::endl;
+		throw InvalidRedirect();
+	}
+
 	this->_http_redirect = std::make_pair(std::atoi(line_tokens[1].c_str()), line_tokens[2]);
 }
 
 void	ServerLocation::_set_root_attribute(std::vector<std::string> line_tokens) {
+	if (!Utils::is_valid_dir(line_tokens[1])) {
+		std::cerr << "Error at Root - " << line_tokens[1] << std::endl;
+		throw InvalidRoot();
+	}
+
 	this->_root = line_tokens[1];
 }
 
 void	ServerLocation::_set_autoindex_attribute(std::vector<std::string> line_tokens) {
+	std::transform(line_tokens[1].begin(), line_tokens[1].end(), line_tokens[1].begin(), ::tolower);
+
+	if (line_tokens[1] != "on" && line_tokens[1] != "off")
+		throw InvalidAutoIndexParam();
+
 	this->_autoindex = line_tokens[1] == "on";
 }
 
 void	ServerLocation::_set_index_attribute(std::vector<std::string> line_tokens) {
+	// do not need validation - only try to find its location at response
+
 	for(long unsigned int j = 1; j < line_tokens.size(); j++)
 		this->_index.push_back(line_tokens[j]);
 }

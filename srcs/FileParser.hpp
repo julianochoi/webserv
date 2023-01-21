@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <Server.hpp>
+#include <Utils.hpp>
 
 class FileParser {
 	private:
@@ -29,6 +30,12 @@ class FileParser {
 		{
 			public:
 				const char* what() const throw(){ return "Invalid Config File"; };
+		};
+
+		class InvalidConfigParam : public std::exception
+		{
+			public:
+				const char* what() const throw(){ return "Invalid Config Param"; };
 		};
 };
 

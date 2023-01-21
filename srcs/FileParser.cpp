@@ -37,9 +37,14 @@ std::vector<Server> FileParser::parse(int argc, char **argv) {
 
 void FileParser::_parse_server(std::ifstream &fs, std::string line) {
 		Server server;
+		std::vector<std::string> line_tokens;
 
-		if (line == "server {") {
+		line_tokens = Utils::string_split(line, "\t ");
+		if (line_tokens.size() == 2 && line_tokens[0] == "server" && line_tokens[1] == "{") {
 			server.parse_server_attributes(fs, line);
 			_servers.push_back(server);
+		} else if (line_tokens.size() > 0 && line_tokens[0][0] != '#') {
+			std::cerr << "Line - " << line << std::endl;
+			throw InvalidConfigParam();
 		}
 }
