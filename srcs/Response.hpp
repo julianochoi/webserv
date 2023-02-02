@@ -19,6 +19,9 @@ class Response {
 		~Response(void);
 
 		void handle(void);
+		void OK(void);
+		void RESP300(void);
+		void ReadHTML(std::string code_pag);
 };
 
 std::ostream &operator<<(std::ostream &out, const Response &response);
