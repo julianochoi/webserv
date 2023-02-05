@@ -33,7 +33,7 @@ void WebServ::event_loop(void) {
 
 		for (std::vector<pollfd>::const_iterator pollfd = _pollfds.begin(); pollfd != _pollfds.end(); pollfd++)
 			if (pollfd->revents) {
-				Http http = Http(*pollfd);
+				Http http = Http(*pollfd, _servers);
 				http.handle();
 			}
 	}
