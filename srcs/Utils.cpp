@@ -1,4 +1,34 @@
 #include <Utils.hpp>
+#include <fstream>
+#include <string>
+#include <cstdio>
+#include <ctime>
+
+
+/*In this code, std::ofstream is used to open the file for writing 
+and the std::ios::out and std::ios::app flags are used to open the 
+file in append mode. The std::endl is used to add a newline character
+ to the end of the line being written.*/
+void addLog(const std::string& fileName, const std::string& line) {
+	// Get the current time
+	time_t t = time(0);
+  	struct tm * now = localtime(&t);
+
+	// Create a string with the current time and date
+	char buf[100];
+	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", now);
+	std::string nowStr = buf;
+
+    std::ofstream outFile;
+    outFile.open(fileName.c_str(), std::ios::out | std::ios::app);
+    if (outFile.is_open()) {
+        outFile << "[" << nowStr << "] " << line << std::endl;
+        outFile.close();
+    }
+}
+
+
+
 
 namespace Utils {
 	std::vector<std::string> string_split(const std::string str, std::string seperators)

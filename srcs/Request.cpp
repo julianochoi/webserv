@@ -71,6 +71,7 @@ std::string	Request::_get_line() {
 			break;
 	}
 
+	addLog(logFile,"Request Total buffer:" + _total_buffer);
 	line = _total_buffer;
 	line.erase(finder);
 	_total_buffer.erase(0, finder);
@@ -131,8 +132,11 @@ void	Request::_parse_first_line() {
 	line = _get_line();
 	tokens = Utils::string_split(line, "\t ");
 	_set_method(tokens[0]);
+	addLog(logFile,"Request first line> Method:" + tokens[0]);
 	_set_path(tokens[1]);
+	addLog(logFile,"Request first line> Path:" + tokens[1]);
 	_set_protocol_info(tokens[2]);
+	addLog(logFile,"Request first line> Protocol:" + tokens[2]);
 }
 
 void	Request::_parse_headers() {
@@ -141,8 +145,10 @@ void	Request::_parse_headers() {
 	while (!_total_buffer.compare("\n")) {
 		_total_buffer.erase(0, 1);
 		header_line = _get_line();
-		if (header_line.compare(""))
+		if (header_line.compare("")) {
 			_set_headers(header_line);
+			addLog(logFile,"Request parse headers> header_line:" + header_line);
+		}
 	}
 }
 

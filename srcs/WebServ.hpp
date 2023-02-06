@@ -10,9 +10,11 @@
 #include <Http.hpp>
 #include <Utils.hpp>
 
+#include <cstdio>
+
 class WebServ {
 	private:
-		std::vector<Server>		_servers;
+		std::vector<Server>	_servers;
 		std::vector<pollfd> _pollfds;
 
 		void _start_listening(void);

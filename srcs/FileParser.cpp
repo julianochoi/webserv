@@ -17,9 +17,11 @@ std::vector<Server> FileParser::parse(int argc, char **argv) {
 	std::ifstream	fs;
 	std::string		line;
 
+	addLog(logFile,"Detecting number of arguments");
 	if (argc != 2)
 		throw InvalidNumberOfArgs();
 
+	addLog(logFile,"Opening file:");
 	fs.open(argv[1], std::ifstream::in);
 
 	if(!fs.is_open())

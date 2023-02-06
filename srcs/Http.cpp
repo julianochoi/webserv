@@ -16,8 +16,17 @@ Http &Http::operator=(Http const &http) {
 Http::~Http(void) {}
 
 void Http::handle(void) {
+	char temp[100];
+	
 	std::cout << "FD " << _pollfd.fd << std::endl;
 	std::cout << _pollfd.revents << std::endl;
+
+	sprintf(temp, "%d", _pollfd.fd);
+	addLog(logFile,"HTTP handle> FD: " + std::string(temp));
+
+	sprintf(temp, "%d", _pollfd.revents);
+	addLog(logFile,"HTTP handle> REvents: " + std::string(temp));
+
 	Request request = Request(_pollfd);
 	int client_fd = request.handle();
 	std::cout << client_fd << std::endl;
@@ -25,6 +34,8 @@ void Http::handle(void) {
 	_set_http_server(request);
 	std::cout << _http_server << std::endl;
 	Response response = Response(_pollfd, client_fd);
+	sprintf(temp, "%d", client_fd);
+	addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
 	response.handle();
 }
 

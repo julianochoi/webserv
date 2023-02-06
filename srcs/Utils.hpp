@@ -7,6 +7,12 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#include <fstream>
+#include <string>
+
+#include <ctime>
+
+
 #define COLOR_OFF "\033[0m"
 #define RED "\033[0;31m"
 #define GREEN "\033[0;32m"
@@ -22,6 +28,12 @@
 #define BCYAN "\033[1;36m"
 #define COLOR_OFF "\033[0m"
 
+#define logFile	"log.log"
+
+
+extern time_t TS;
+
+
 namespace Utils {
 	std::vector<std::string> string_split(const std::string str, std::string seperators);
 	bool is_valid_file(const std::string str);
@@ -30,5 +42,11 @@ namespace Utils {
 	void handle_signal(int signal);
 	void listen_signals(void);
 }
+
+
+void addLog(const std::string& fileName, const std::string& line);
+
+
+
 
 #endif
