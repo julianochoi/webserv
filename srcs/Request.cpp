@@ -42,8 +42,10 @@ int	Request::handle(void) {
 	_parse_first_line();
 	if (!_total_buffer.compare("\n"))
 		_parse_headers();
-	if (!_total_buffer.compare("\n"))
-		_parse_body();
+	if (!_headers["Transfer-Encoding"].compare("chunked"))
+		_parse_chunked_body();
+	else if (_headers["Content-Length"].c_str())
+		_parse_full_body();
 
 	return _client_fd;
 }
@@ -55,10 +57,13 @@ std::string	Request::_get_line() {
 
 	bytes_read = recv(_client_fd, _buffer, BUFFER_SIZE, 0);
 	_total_buffer += *_buffer;
-	if (!_total_buffer.compare("\r"))
+	if (!_total_buffer.compare("\r")) { //when reaches end of header parse
+		recv(_client_fd, _buffer, BUFFER_SIZE, 0); // gets \r\n string
+		_total_buffer += *_buffer;
+		_total_buffer.erase(0, 2);
 		return "";
+	}
 	while (bytes_read > 0) {
-		std::cout << *_buffer;
 		bytes_read = recv(_client_fd, _buffer, BUFFER_SIZE, 0);
 		_total_buffer += *_buffer;
 		finder = _total_buffer.find("\n");
@@ -66,11 +71,57 @@ std::string	Request::_get_line() {
 			break;
 	}
 
-	std::cout << _total_buffer;
 	line = _total_buffer;
 	line.erase(finder);
 	_total_buffer.erase(0, finder);
 	return line;
+}
+
+std::string	Request::_get_chunked_size_line() {
+	std::size_t finder;
+	int bytes_read;
+	std::string line;
+
+	bytes_read = recv(_client_fd, _buffer, BUFFER_SIZE, 0);
+	line += *_buffer;
+	while (bytes_read > 0) {
+		bytes_read = recv(_client_fd, _buffer, BUFFER_SIZE, 0);
+		line += *_buffer;
+		finder = line.find("\n");
+		if (finder != std::string::npos)
+			break;
+	}
+
+	return line;
+}
+
+
+void	Request::_get_chunked_body_line(std::size_t size) {
+	if (size == 0)
+		return ;
+	char *body_buffer = new char[size + 1];
+
+	recv(_client_fd, body_buffer, size, 0);
+	body_buffer[size] = '\0';
+	_body.append(body_buffer);
+
+
+	recv(_client_fd, body_buffer, 1, 0); //read \r line
+	recv(_client_fd, body_buffer, 1, 0); //read \n line
+
+	delete[] body_buffer;
+}
+
+void	Request::_get_full_body(std::size_t size) {
+	if (size == 0)
+		return ;
+
+	char *body_buffer = new char[size + 1];
+
+	recv(_client_fd, body_buffer, size, 0);
+	body_buffer[size] = '\0';
+	_body.append(body_buffer);
+	delete[] body_buffer;
 }
 
 void	Request::_parse_first_line() {
@@ -95,9 +146,33 @@ void	Request::_parse_headers() {
 	}
 }
 
-void	Request::_parse_body() {
-	_total_buffer.erase(0, 1);
-	_get_line();
+void	Request::_parse_full_body() {
+	int size = std::atoi(_headers["Content-Length"].c_str());
+	_get_full_body(size);
+}
+
+void	Request::_parse_chunked_body() {
+	std::size_t chunk_size;
+	std::size_t chunk_total_size = 0;
+	std::string chunk_size_str;
+
+	chunk_size_str = _get_chunked_size_line();
+	std::stringstream	s_stream(chunk_size_str);
+
+	s_stream >> std::hex >> chunk_size;
+	chunk_total_size += chunk_size;
+
+	while (chunk_size > 0)
+	{
+		_get_chunked_body_line(chunk_size);
+		chunk_size_str = _get_chunked_size_line();
+		std::stringstream	s_stream(chunk_size_str);
+
+		s_stream >> std::hex >> chunk_size;
+		chunk_total_size += chunk_size;
+	}
+
+	_headers["Content-Length"] = chunk_total_size;
 }
 
 void	Request::_set_headers(std::string line) {
@@ -136,5 +211,7 @@ std::ostream &operator<<(std::ostream &out, const Request &request) {
 	std::map<std::string, std::string> headers = request.headers();
 	for (std::map<std::string, std::string>::const_iterator  it = headers.begin(); it != headers.end(); it++)
 			out << " " << it->first << ": " << it->second << std::endl;
+
+	out << "Body: " << request.body() << std::endl;
 	return out;
 }

@@ -7,6 +7,7 @@
 #include <poll.h>
 #include <sys/socket.h>
 #include <Utils.hpp>
+#include <sstream>
 
 #define BUFFER_SIZE 1
 
@@ -26,9 +27,13 @@ class Request {
 
 
 		std::string	_get_line();
+		void	_get_full_body(std::size_t size);
+		void	_get_chunked_body_line(std::size_t size);
+		std::string	_get_chunked_size_line();
 		void	_parse_first_line();
 		void	_parse_headers();
-		void	_parse_body();
+		void	_parse_chunked_body();
+		void	_parse_full_body();
 
 		void	_set_headers(std::string line);
 		void	_set_body(std::string line);
