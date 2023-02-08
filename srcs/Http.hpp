@@ -7,15 +7,21 @@
 #include <Request.hpp>
 #include <Response.hpp>
 #include <Server.hpp>
+#include <ServerLocation.hpp>
 
 class Http {
 	private:
 		pollfd					_pollfd;
 		std::vector<Server>		_servers;
 		Server					_http_server;
+		ServerLocation	_http_location;
+		bool						_has_location;
+		std::string			_remaining_path;
 
 
 		void _set_http_server(Request request);
+		void _set_location(Request request);
+		void _response_handler(int client_fd, Request request);
 
 	public:
 		Http(void);
