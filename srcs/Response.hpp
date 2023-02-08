@@ -21,7 +21,7 @@ class Response {
 		void handle(std::string statuscode);
 		void OK(void);
 		void RESP300(void);
-		void ReadHTML(std::string code_pag);
+		void ReadHTML(std::string code_pag, std::string path);
 };
 
 std::ostream &operator<<(std::ostream &out, const Response &response);

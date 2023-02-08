@@ -71,7 +71,7 @@ std::string	Request::_get_line() {
 			break;
 	}
 
-	addLog(logFile,"Request Total buffer:" + _total_buffer);
+	//addLog(logFile,"Request Total buffer:" + _total_buffer);
 	line = _total_buffer;
 	line.erase(finder);
 	_total_buffer.erase(0, finder);

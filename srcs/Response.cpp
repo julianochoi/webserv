@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
 using namespace std;
 
 Response::Response(void) {}
@@ -21,36 +22,59 @@ Response &Response::operator=(Response const &response) {
 
 Response::~Response(void) {}
 
+
+/*
+void loadMapStatusCode(void){
+	std::map<std::string, std::string> MapStatusCode;
+    MapStatusCode.insert(std::make_pair("100", "root_html/default_responses/"));
+	MapStatusCode.insert(std::make_pair("404", "root_html/default_responses/"));
+	MapStatusCode.insert(std::make_pair("index2", "root_html/"));
+	MapStatusCode.insert(std::make_pair("index3", "root_html/"));
+}*/
+
+
+
 void Response::handle(std::string statuscode) {
+	std::map<std::string, std::string> MapStatusCode;
 
-	//OK();
-	//RESP300();
-	/*std::cout << "Server Names: " << std::endl;
-	std::vector<std::string> server_names = server.server_names();
-	for(std::vector<std::string>::const_iterator  it = server_names.begin(); it != server_names.end(); it++)
-		std::cout << " " << *it << std::endl;*/
 
-	//std::cout << "Param - " << Server->listen_atributes[1] << std::endl;
-	//ReadHTML("100");
+    MapStatusCode.insert(std::make_pair("100", "root_html/default_responses/"));
+	MapStatusCode.insert(std::make_pair("404", "root_html/default_responses/"));
+	MapStatusCode.insert(std::make_pair("index2", "root_html/"));
+	MapStatusCode.insert(std::make_pair("index3", "root_html/"));
+
+	/*loadMapStatusCode();*/
+	addLog(logFile,"Path: " + MapStatusCode.find(statuscode)->second);
+	/*Caso nao encontre no map, forca ser 404*/
+	if (MapStatusCode.find(statuscode)->second == "")
+		statuscode = "404";
+
+	/*
 	Request request = Request(_pollfd);
 	std::string	 MMM = request.method();
 	std::cout << MMM << std::endl;
-	ReadHTML(statuscode);
+	addLog(logFile,"TESTE " + MMM);
+	addLog(logFile,"TESTE " + std::string(MMM));
+
+	addLog(logFile,"TESTE " + request.method());
+	addLog(logFile,"TESTE " + request.body());
+	addLog(logFile,"TESTE " + request.path());
+	*/
+	ReadHTML(statuscode, MapStatusCode.find(statuscode)->second);
 }
 
 
 
-void Response::ReadHTML(std::string code_pag) {
+void Response::ReadHTML(std::string code_pag, std::string path) {
 
 	const char* buffer;
 	int buffer_len;	
 	string line;
-	string path;
-	//path = string("root_html/default_responses/") + code_pag + string(".html");
-	path = string("root_html/default_responses/") + code_pag + string(".html");
+	string fullpath;
+	fullpath = string(path) + code_pag + string(".html");
 	
 	std::cout << code_pag << std::endl;
-	ifstream file(path.c_str());
+	ifstream file(fullpath.c_str());
 	if (file.is_open())
 	{
 		send(_client_fd, "HTTP/1.1 200 OK\n", 16, 0);
