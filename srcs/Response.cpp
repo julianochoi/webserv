@@ -1,4 +1,5 @@
 #include <Response.hpp>
+#include <Request.hpp>
 #include <Server.hpp>
 #include <iostream>
 #include <fstream>
@@ -20,7 +21,7 @@ Response &Response::operator=(Response const &response) {
 
 Response::~Response(void) {}
 
-void Response::handle(void) {
+void Response::handle(std::string statuscode) {
 
 	//OK();
 	//RESP300();
@@ -31,8 +32,12 @@ void Response::handle(void) {
 
 	//std::cout << "Param - " << Server->listen_atributes[1] << std::endl;
 	//ReadHTML("100");
-	ReadHTML("100");
+	Request request = Request(_pollfd);
+	std::string	 MMM = request.method();
+	std::cout << MMM << std::endl;
+	ReadHTML(statuscode);
 }
+
 
 
 void Response::ReadHTML(std::string code_pag) {

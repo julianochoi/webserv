@@ -199,12 +199,12 @@ void	Request::_set_protocol_info(std::string line) {
 }
 
 std::map<std::string, std::string>	Request::headers(void) const { return _headers; }
-std::string													Request::body(void) const { return _body; }
-std::string													Request::method(void) const { return _method; }
-std::string													Request::path(void) const { return _path; }
-std::string													Request::query(void) const { return _query; }
-std::string													Request::protocol(void) const { return _protocol; }
-std::string													Request::protocol_version(void) const { return _protocol_version; }
+std::string							Request::body(void) const { return _body; }
+std::string							Request::method(void) const { return _method; }
+std::string							Request::path(void) const { return _path; }
+std::string							Request::query(void) const { return _query; }
+std::string							Request::protocol(void) const { return _protocol; }
+std::string							Request::protocol_version(void) const { return _protocol_version; }
 
 std::ostream &operator<<(std::ostream &out, const Request &request) {
 	out << "Request: " << std::endl;

@@ -18,7 +18,7 @@ class Response {
 		Response& operator=(Response const &response);
 		~Response(void);
 
-		void handle(void);
+		void handle(std::string statuscode);
 		void OK(void);
 		void RESP300(void);
 		void ReadHTML(std::string code_pag);

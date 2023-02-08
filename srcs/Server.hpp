@@ -16,20 +16,20 @@ class ServerLocation;
 
 class Server {
 	private:
-		std::vector<std::string>							_server_names;
-		sockaddr															_host_addrinfo;
-		socklen_t															_host_addrinfo_len;
-		std::string														_host;
-		int																		_port;
-		std::map<int, std::string>						_erros_pages;
-		std::vector<std::string>							_http_methods;
-		std::pair<int, std::string>						_http_redirect;
-		std::string														_root;
-		int																		_body_size_limit;
-		bool																	_autoindex;
-		std::vector<std::string>							_index;
+		std::vector<std::string>				_server_names;
+		sockaddr								_host_addrinfo;
+		socklen_t								_host_addrinfo_len;
+		std::string								_host;
+		int										_port;
+		std::map<int, std::string>				_erros_pages;
+		std::vector<std::string>				_http_methods;
+		std::pair<int, std::string>				_http_redirect;
+		std::string								_root;
+		int										_body_size_limit;
+		bool									_autoindex;
+		std::vector<std::string>				_index;
 		std::map<std::string, ServerLocation>	_locations;
-		std::string														_cgi_extension;
+		std::string								_cgi_extension;
 
 		void	_parse_location_attributes(std::ifstream &fs, std::string line, std::string path);
 		void	_set_server_attributes(std::vector<std::string> line_tokens);
@@ -55,21 +55,21 @@ class Server {
 
 		void	parse_server_attributes(std::ifstream &fs, std::string line);
 
-		std::vector<std::string>							server_names(void) const;
-		sockaddr															host_addrinfo(void) const;
-		socklen_t															host_addrinfo_len(void) const;
-		std::string														host(void) const;
-		int																		port(void) const;
-		std::map<int, std::string>						erros_pages(void) const;
-		std::vector<std::string>							http_methods(void) const;
-		std::pair<int, std::string>						http_redirect(void) const;
-		std::string														root(void) const;
-		int																		body_size_limit(void) const;
-		bool																	autoindex(void) const;
-		std::vector<std::string>							index(void) const;
+		std::vector<std::string>				server_names(void) const;
+		sockaddr								host_addrinfo(void) const;
+		socklen_t								host_addrinfo_len(void) const;
+		std::string								host(void) const;
+		int										port(void) const;
+		std::map<int, std::string>				erros_pages(void) const;
+		std::vector<std::string>				http_methods(void) const;
+		std::pair<int, std::string>				http_redirect(void) const;
+		std::string								root(void) const;
+		int										body_size_limit(void) const;
+		bool									autoindex(void) const;
+		std::vector<std::string>				index(void) const;
 		std::map<std::string, ServerLocation>	locations(void) const;
-		std::string														cgi_extension(void) const;
-		ServerLocation												location(std::string path) const;
+		std::string								cgi_extension(void) const;
+		ServerLocation							location(std::string path) const;
 
 	class InvalidServerParam : public std::exception
 	{

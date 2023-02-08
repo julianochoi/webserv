@@ -1,5 +1,10 @@
 #include <Http.hpp>
 
+#include <iostream>
+#include <fstream>
+#include <string>
+
+
 Http::Http(void) {}
 
 Http::Http(pollfd const &pollfd, std::vector<Server> servers): _pollfd(pollfd), _servers(servers) {}
@@ -15,7 +20,7 @@ Http &Http::operator=(Http const &http) {
 
 Http::~Http(void) {}
 
-void Http::handle(void) {
+void Http::handle() {
 	char temp[100];
 	
 	std::cout << "FD " << _pollfd.fd << std::endl;
@@ -36,7 +41,16 @@ void Http::handle(void) {
 	Response response = Response(_pollfd, client_fd);
 	sprintf(temp, "%d", client_fd);
 	addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
-	response.handle();
+
+	
+	std::ifstream file("statuscode.txt");
+	std::string statuscode;
+	if (file.is_open()) {
+		std::getline(file, statuscode);
+		file.close();
+	}
+	
+	response.handle(statuscode);
 }
 
 void Http::_set_http_server(Request request) {

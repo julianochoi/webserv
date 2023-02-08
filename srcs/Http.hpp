@@ -10,9 +10,9 @@
 
 class Http {
 	private:
-		pollfd								_pollfd;
+		pollfd					_pollfd;
 		std::vector<Server>		_servers;
-		Server								_http_server;
+		Server					_http_server;
 
 
 		void _set_http_server(Request request);
@@ -24,7 +24,7 @@ class Http {
 		Http& operator=(Http const &http);
 		~Http(void);
 
-		void handle(void);
+		void handle();
 };
 
 std::ostream &operator<<(std::ostream &out, const Http &http);
