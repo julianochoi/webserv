@@ -85,12 +85,12 @@ void Http::_response_handler(int client_fd, Request request) {
 		std::getline(file, statuscode);
 		file.close();
 	}
-
+	
 	response.handle(statuscode);
-
+	
 	//! descomenta isso
-	// if (!request.method().compare("GET")) {
-	// 	std::string response_file_path;
+	if (!request.method().compare("GET")) 
+		std::string response_file_path;
 	// 	std::string root;
 	// 	std::string index;
 	// 	if (_has_location) {

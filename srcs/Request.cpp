@@ -147,7 +147,7 @@ void	Request::_parse_headers() {
 		header_line = _get_line();
 		if (header_line.compare("")) {
 			_set_headers(header_line);
-			addLog(logFile,"Request parse headers> header_line:" + header_line);
+			//addLog(logFile,"Request parse headers> header_line:" + header_line);
 		}
 	}
 }
