@@ -79,6 +79,7 @@ void Http::_response_handler(int client_fd, Request request) {
 	Response response = Response(_pollfd, client_fd);
 
 	//! comenta isso
+	(void)request;
 	std::ifstream file("statuscode.txt");
 	std::string statuscode;
 	if (file.is_open()) {
