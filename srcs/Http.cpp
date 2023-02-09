@@ -88,7 +88,7 @@ void Http::_response_handler(int client_fd, Request request) {
 	}
 
 	response.handle(statuscode);	*/
-	
+
 	//! descomenta isso
 	if (!request.method().compare("GET")) {
 		std::string response_file_path;
@@ -101,7 +101,7 @@ void Http::_response_handler(int client_fd, Request request) {
 	 		root = _http_server.root();
 	 		index = _http_server.index()[0];
 	 	}
-	 	if (index.length())
+	 	if (index.length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
 	 		response_file_path.append(root).append("/").append(index);
 	 	else
 	 		response_file_path.append(root).append(_remaining_path);

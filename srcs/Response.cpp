@@ -137,7 +137,7 @@ void Response::handle(std::string statuscode, std::string pathHTML) {
 void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::string pathHTML) {
 
 	const char* buffer;
-	int buffer_len;	
+	int buffer_len;
 	string line;
 	//string fullpath;
 
@@ -148,15 +148,15 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 
 	//fullpath = string(path) + code_pag + string(".html");
 	addLog(logFile,"MsgCode " + msgStatusCode);
-	
+
 	std::cout << code_pag << std::endl;
 	//ifstream file(fullpath.c_str());
 	ifstream file(pathHTML.c_str());
 	if (file.is_open())
 	{
 		send(_client_fd, "HTTP/1.1 ", 9, 0);
-		send(_client_fd, &code_pag, 3, 0);
-		send(_client_fd, &msgStatusCode, msgStatusCode.length(), 0);
+		send(_client_fd, code_pag.c_str(), 3, 0);
+		send(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
 		send(_client_fd, "\n", 1, 0);
 		send(_client_fd, "Content-Type: text/html\n", 24, 0);
 		send(_client_fd, "\n", 1, 0);
