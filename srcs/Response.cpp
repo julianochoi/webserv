@@ -33,7 +33,7 @@ void loadMapStatusCode(void){
 }*/
 
 
-void Response::handle(std::string statuscode) {
+void Response::handle(std::string statuscode, std::string pathHTML) {
 	std::map<std::string, std::string> MapStatusCode;
 
 	MapStatusCode.insert(std::make_pair("100", "Continue"));
@@ -129,28 +129,29 @@ void Response::handle(std::string statuscode) {
 	addLog(logFile,"TESTE " + request.body());
 	addLog(logFile,"TESTE " + request.path());
 	*/
-	ReadHTML(statuscode, MapStatusCode.find(statuscode)->second);
+	ReadHTML(statuscode, MapStatusCode.find(statuscode)->second, pathHTML);
 }
 
 
 
-void Response::ReadHTML(std::string code_pag, std::string msgStatusCode) {
+void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::string pathHTML) {
 
 	const char* buffer;
 	int buffer_len;	
 	string line;
-	string fullpath;
+	//string fullpath;
 
-	if (isdigit(code_pag[0]))
+	/*if (isdigit(code_pag[0]))
 		fullpath = "root_html/default_responses/" + code_pag + string(".html");
 	if (code_pag[0] == 'i')
-		fullpath = "root_html/" + code_pag + string(".html");
+		fullpath = "root_html/" + code_pag + string(".html");*/
 
 	//fullpath = string(path) + code_pag + string(".html");
 	addLog(logFile,"MsgCode " + msgStatusCode);
 	
 	std::cout << code_pag << std::endl;
-	ifstream file(fullpath.c_str());
+	//ifstream file(fullpath.c_str());
+	ifstream file(pathHTML.c_str());
 	if (file.is_open())
 	{
 		send(_client_fd, "HTTP/1.1 ", 9, 0);
