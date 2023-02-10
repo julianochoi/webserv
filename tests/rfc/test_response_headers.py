@@ -24,6 +24,8 @@ class TestResponseHeaders:
         utils.parse_imf_date(datestring)
 
     def test_content_length(self, client: Client):
+        # BUG:  This test fails if DEBUG is activated due to `read` being called first by
+        #       the debug functions.
         headers = {"Host": client._server_addr}
         r = client.sock_get(headers=headers)
         try:
