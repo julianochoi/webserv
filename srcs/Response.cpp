@@ -5,6 +5,8 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <sys/stat.h>
+
 using namespace std;
 
 Response::Response(void) {}
@@ -118,17 +120,6 @@ void Response::handle(std::string statuscode, std::string pathHTML) {
 		statuscode = "404";
 	//addLog(logFile,"StatusCode " + MapStatusCode.find(statuscode)->second);
 
-	/*
-	Request request = Request(_pollfd);
-	std::string	 MMM = request.method();
-	std::cout << MMM << std::endl;
-	addLog(logFile,"TESTE " + MMM);
-	addLog(logFile,"TESTE " + std::string(MMM));
-
-	addLog(logFile,"TESTE " + request.method());
-	addLog(logFile,"TESTE " + request.body());
-	addLog(logFile,"TESTE " + request.path());
-	*/
 	ReadHTML(statuscode, MapStatusCode.find(statuscode)->second, pathHTML);
 }
 
@@ -139,6 +130,8 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	const char* buffer;
 	int buffer_len;
 	string line;
+	struct stat file_status;
+	char temp[100];
 	//string fullpath;
 
 	/*if (isdigit(code_pag[0]))
@@ -148,8 +141,20 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 
 	//fullpath = string(path) + code_pag + string(".html");
 	addLog(logFile,"MsgCode " + msgStatusCode);
+	addLog(logFile,"Path " + pathHTML);
+
+	if (pathHTML == "")
+		pathHTML = "root_html/default_responses/" + code_pag + string(".html");
 
 	std::cout << code_pag << std::endl;
+
+	if (stat(pathHTML.c_str(), &file_status) == 0){
+		sprintf(temp, "%ld", file_status.st_size);
+		addLog(logFile,"Body bytes: " + std::string(temp));
+		std::cout << "The size of the file is: " << file_status.st_size << " bytes." << std::endl;
+	}
+
+
 	//ifstream file(fullpath.c_str());
 	ifstream file(pathHTML.c_str());
 	if (file.is_open())
@@ -169,6 +174,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 			send(_client_fd, buffer, buffer_len, 0);
 			send(_client_fd, "\n", 1, 0);
 		}
+		file.close();
 	}
 	close(_client_fd);
 }

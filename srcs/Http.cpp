@@ -91,18 +91,28 @@ void Http::_response_handler(int client_fd, Request request) {
 void Http::_get_handler(std::string response_file_path, int client_fd) {
 	Response response = Response(_pollfd, client_fd);
 	std::ifstream file(response_file_path.c_str());
+	std::string prevStatusCode = "";
+	std::string prevPath = "";
+
 
 	if (file.is_open()) {
 		file.close();
-		response.handle("200", response_file_path);
+		//response.handle("200", response_file_path);
+		prevStatusCode = "200";
+		prevPath = response_file_path;
 	}
 	else {
 		std::string file_error = "";
 		if (_erros_pages().count(404))
 			file_error = _root().append(_http_server.erros_pages()[404]);
-		addLog(logFile,"File Error: " + file_error);
-		response.handle("404", file_error);
+		//response.handle("404", file_error);
+		prevStatusCode = "404";
+		prevPath = file_error;
 	}
+	addLog(logFile,"Status Code: " + prevStatusCode);
+	addLog(logFile,"Path: " + prevPath);
+	//prevPath = "";
+	response.handle(prevStatusCode, prevPath);
 }
 
 std::string Http::_root(void) const {
