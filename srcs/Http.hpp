@@ -22,6 +22,7 @@ class Http {
 		void _set_http_server(Request request);
 		void _set_location(Request request);
 		void _response_handler(int client_fd, Request request);
+		void _get_handler(std::string response_file_path, int client_fd);
 
 		std::string								_root(void) const;
 		std::string				_index(void) const;

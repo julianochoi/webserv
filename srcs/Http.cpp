@@ -76,31 +76,33 @@ void Http::_set_location(Request request) {
 }
 
 void Http::_response_handler(int client_fd, Request request) {
+	std::string response_file_path;
+
+	if (_index().length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
+		response_file_path.append(_root()).append("/").append(_index());
+	else
+		response_file_path.append(_root()).append(_remaining_path);
+	addLog(logFile, "Response File Path: " + response_file_path);
+
+	if (!request.method().compare("GET"))
+		_get_handler(response_file_path, client_fd);
+}
+
+void Http::_get_handler(std::string response_file_path, int client_fd) {
 	Response response = Response(_pollfd, client_fd);
+	std::ifstream file(response_file_path.c_str());
 
-	if (!request.method().compare("GET")) {
-		std::string response_file_path;
-
-	 	if (_index().length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
-	 		response_file_path.append(_root()).append("/").append(_index());
-	 	else
-	 		response_file_path.append(_root()).append(_remaining_path);
-
-	 	std::cout << response_file_path << std::endl;
-	 	std::ifstream file(response_file_path.c_str());
-	 	if (file.is_open()) {
-	 		file.close();
-			addLog(logFile,"TESTE " + response_file_path);
-	 		response.handle("200", response_file_path);
-	 	}
-	 	else {
-	 		std::string file_error = "";
-			if (_erros_pages().count(404))
-				file_error = _root().append(_http_server.erros_pages()[404]);
-			addLog(logFile,"TESTE " + file_error);
-	 		response.handle("404", file_error);
-	 	}
-	 }
+	if (file.is_open()) {
+		file.close();
+		response.handle("200", response_file_path);
+	}
+	else {
+		std::string file_error = "";
+		if (_erros_pages().count(404))
+			file_error = _root().append(_http_server.erros_pages()[404]);
+		addLog(logFile,"File Error: " + file_error);
+		response.handle("404", file_error);
+	}
 }
 
 std::string Http::_root(void) const {
