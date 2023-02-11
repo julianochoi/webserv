@@ -78,33 +78,13 @@ void Http::_set_location(Request request) {
 void Http::_response_handler(int client_fd, Request request) {
 	Response response = Response(_pollfd, client_fd);
 
-	//! comenta isso
-	/*(void)request;
-	std::ifstream file("statuscode.txt");
-	std::string statuscode;
-	if (file.is_open()) {
-		std::getline(file, statuscode);
-		file.close();
-	}
-
-	response.handle(statuscode);	*/
-
-	//! descomenta isso
 	if (!request.method().compare("GET")) {
 		std::string response_file_path;
-	 	std::string root;
-	 	std::string index;
-	 	if (_has_location) {
-	 		root = _http_location.root();
-	 		index = _http_location.index()[0];
-	 	} else {
-	 		root = _http_server.root();
-	 		index = _http_server.index()[0];
-	 	}
-	 	if (index.length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
-	 		response_file_path.append(root).append("/").append(index);
+
+	 	if (_index().length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
+	 		response_file_path.append(_root()).append("/").append(_index());
 	 	else
-	 		response_file_path.append(root).append(_remaining_path);
+	 		response_file_path.append(_root()).append(_remaining_path);
 
 	 	std::cout << response_file_path << std::endl;
 	 	std::ifstream file(response_file_path.c_str());
@@ -115,17 +95,33 @@ void Http::_response_handler(int client_fd, Request request) {
 	 	}
 	 	else {
 	 		std::string file_error = "";
-	 		if (_has_location) {
-	 			if (_http_location.erros_pages().count(404))
-	 				file_error = root.append(_http_location.erros_pages()[404]);
-	 		} else {
-	 			if (_http_server.erros_pages().count(404))
-	 				file_error = root.append(_http_server.erros_pages()[404]);
-	 		}
-			 addLog(logFile,"TESTE " + file_error);
+			if (_erros_pages().count(404))
+				file_error = _root().append(_http_server.erros_pages()[404]);
+			addLog(logFile,"TESTE " + file_error);
 	 		response.handle("404", file_error);
 	 	}
 	 }
+}
+
+std::string Http::_root(void) const {
+	if (_has_location)
+		return _http_location.root();
+	else
+		return _http_server.root();
+}
+
+std::string Http::_index(void) const {
+	if (_has_location)
+		return _http_location.index()[0];
+	else
+		return _http_server.index()[0];
+}
+
+std::map<int, std::string> Http::_erros_pages(void) const {
+	if (_has_location)
+		return _http_location.erros_pages();
+	else
+		return _http_server.erros_pages();
 }
 
 std::ostream &operator<<(std::ostream &out, const Http &http) {

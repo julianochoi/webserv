@@ -23,6 +23,11 @@ class Http {
 		void _set_location(Request request);
 		void _response_handler(int client_fd, Request request);
 
+		std::string								_root(void) const;
+		std::string				_index(void) const;
+		std::map<int, std::string>				_erros_pages(void) const;
+
+
 	public:
 		Http(void);
 		Http(Http const &http);
