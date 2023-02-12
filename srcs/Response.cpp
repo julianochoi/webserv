@@ -14,11 +14,13 @@ Response::Response(void) {}
 Response::Response(pollfd const &pollfd, int client_fd): _pollfd(pollfd), _client_fd(client_fd) {}
 
 Response::Response(Response const &response) {
-	(void)response;
+	_pollfd = response._pollfd;
+	_client_fd = response._client_fd;
 }
 
 Response &Response::operator=(Response const &response) {
-	(void)response;
+	_pollfd = response._pollfd;
+	_client_fd = response._client_fd;
 	return *this;
 }
 
