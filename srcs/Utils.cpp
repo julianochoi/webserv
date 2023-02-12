@@ -5,8 +5,8 @@
 #include <ctime>
 
 
-/*In this code, std::ofstream is used to open the file for writing 
-and the std::ios::out and std::ios::app flags are used to open the 
+/*In this code, std::ofstream is used to open the file for writing
+and the std::ios::out and std::ios::app flags are used to open the
 file in append mode. The std::endl is used to add a newline character
  to the end of the line being written.*/
 void addLog(const std::string& fileName, const std::string& line) {
@@ -81,6 +81,11 @@ namespace Utils {
 		if (str.find_first_not_of("0123456789") != std::string::npos)
 			return false;
 		return true;
+	}
+
+	bool file_exists(const std::string filename)
+	{
+		return access(filename.c_str(), F_OK) == 0;
 	}
 
 	void handle_signal(int signal) {

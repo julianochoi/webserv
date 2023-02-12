@@ -90,30 +90,37 @@ void Http::_response_handler(int client_fd, Request request) {
 
 void Http::_get_handler(std::string response_file_path, int client_fd) {
 	Response response = Response(_pollfd, client_fd);
-	std::ifstream file(response_file_path.c_str());
-	std::string prevStatusCode = "";
+	std::string prevStatusCode = "500";
 	std::string prevPath = "";
 
 
-	if (file.is_open()) {
-		file.close();
-		//response.handle("200", response_file_path);
+	if (Utils::file_exists(response_file_path)) {
 		prevStatusCode = "200";
 		prevPath = response_file_path;
 	}
 	else {
-		std::string file_error = "";
-		if (_erros_pages().count(404))
-			file_error = _root().append(_http_server.erros_pages()[404]);
-		//response.handle("404", file_error);
 		prevStatusCode = "404";
-		prevPath = file_error;
+		prevPath = _get_file_error(prevStatusCode);
 	}
+
 	addLog(logFile,"Status Code: " + prevStatusCode);
 	addLog(logFile,"Path: " + prevPath);
-	//prevPath = "";
 	response.handle(prevStatusCode, prevPath);
 }
+
+std::string Http::_get_file_error(std::string status_code) {
+		std::string file_error = "";
+		std::string temp_file_path;
+
+		if (_erros_pages().count(std::atoi(status_code.c_str()))) {
+			temp_file_path = _root().append(_http_server.erros_pages()[std::atoi(status_code.c_str())]);
+			if (Utils::file_exists(temp_file_path))
+				file_error = temp_file_path;
+		}
+
+		return file_error;
+}
+
 
 std::string Http::_root(void) const {
 	if (_has_location)

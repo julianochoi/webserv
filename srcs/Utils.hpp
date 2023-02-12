@@ -5,6 +5,7 @@
 #include <vector>
 #include <csignal>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/stat.h>
 
 #include <fstream>
@@ -39,6 +40,7 @@ namespace Utils {
 	bool is_valid_file(const std::string str);
 	bool is_valid_dir(const std::string str);
 	bool is_number(const std::string str);
+	bool file_exists(const std::string filename);
 	void handle_signal(int signal);
 	void listen_signals(void);
 }
