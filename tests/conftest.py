@@ -24,13 +24,13 @@ def search_upwards_for_file(filename, dir_path: bool = False):
     return None
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def run_server():
     makefile_path = search_upwards_for_file("Makefile", dir_path=True)
     subprocess.run("make", check=True, cwd=makefile_path, capture_output=True)
 
     webserv_path = search_upwards_for_file("webserv", dir_path=True)
-    with open("logs/stdout.txt", "a") as out, open("logs/stderr.txt", "a") as err:
+    with open("logs/stdout.log", "a") as out, open("logs/stderr.log", "a") as err:
         p = subprocess.Popen(["./webserv", "default.conf"], cwd=webserv_path, stdout=out, stderr=err)
     p.poll()
     if p.returncode:
