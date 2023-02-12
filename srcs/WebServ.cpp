@@ -61,6 +61,10 @@ void WebServ::_start_listening(void) {
 
 		sockaddr bind_host_addrinfo = server->host_addrinfo();
 
+		int yes =1;
+		setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
+		/*colocar um if para proteger com uma msg de erro*/
+		
 		if (bind(socket_fd, &bind_host_addrinfo, server->host_addrinfo_len()))
 			throw BindInitError();
 

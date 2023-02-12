@@ -134,6 +134,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	string line;
 	struct stat file_status;
 	char temp[100];
+	string bodylength;
 	//string fullpath;
 
 	/*if (isdigit(code_pag[0]))
@@ -154,6 +155,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		sprintf(temp, "%ld", file_status.st_size);
 		addLog(logFile,"Body bytes: " + std::string(temp));
 		std::cout << "The size of the file is: " << file_status.st_size << " bytes." << std::endl;
+		std::cout << "The size of the file is: " << 17 + file_status.st_size << " bytes." << std::endl;
 	}
 
 
@@ -166,7 +168,10 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		send(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
 		send(_client_fd, "\n", 1, 0);
 		send(_client_fd, "Content-Type: text/html\n", 24, 0);
+		bodylength = "Content-Length: " + std::string(temp) + "\n";
+		send(_client_fd, &bodylength, 17 + file_status.st_size, 0);
 		send(_client_fd, "\n", 1, 0);
+
 		while (getline(file, line))
 		{
 			//std::cout << "line" << std::endl;
