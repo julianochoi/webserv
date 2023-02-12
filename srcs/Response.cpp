@@ -167,9 +167,10 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		send(_client_fd, code_pag.c_str(), 3, 0);
 		send(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
 		send(_client_fd, "\n", 1, 0);
-		send(_client_fd, "Content-Type: text/html\n", 24, 0);
+		
 		bodylength = "Content-Length: " + std::string(temp) + "\n";
 		send(_client_fd, &bodylength, 17 + file_status.st_size, 0);
+		send(_client_fd, "Content-Type: text/html\n", 24, 0);
 		send(_client_fd, "\n", 1, 0);
 
 		while (getline(file, line))
