@@ -17,12 +17,13 @@ class Http {
 		ServerLocation	_http_location;
 		bool						_has_location;
 		std::string			_remaining_path;
+		Response				_response;
 
 
 		void _set_http_server(Request request);
 		void _set_location(Request request);
-		void _response_handler(int client_fd, Request request);
-		void _get_handler(std::string response_file_path, int client_fd);
+		void _response_handler(Request request);
+		void _get_handler(std::string response_file_path);
 		std::string _get_file_error(std::string status_code);
 
 		std::string								_root(void) const;

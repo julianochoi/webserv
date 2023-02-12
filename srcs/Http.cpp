@@ -43,7 +43,8 @@ void Http::handle() {
 	_set_location(request);
 	if (_has_location)
 		std::cout << _http_location << std::endl;
-	_response_handler(client_fd, request);
+	_response = Response(_pollfd, client_fd);
+	_response_handler(request);
 }
 
 void Http::_set_http_server(Request request) {
@@ -75,7 +76,7 @@ void Http::_set_location(Request request) {
 	}
 }
 
-void Http::_response_handler(int client_fd, Request request) {
+void Http::_response_handler(Request request) {
 	std::string response_file_path;
 
 	if (_index().length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
@@ -85,11 +86,10 @@ void Http::_response_handler(int client_fd, Request request) {
 	addLog(logFile, "Response File Path: " + response_file_path);
 
 	if (!request.method().compare("GET"))
-		_get_handler(response_file_path, client_fd);
+		_get_handler(response_file_path);
 }
 
-void Http::_get_handler(std::string response_file_path, int client_fd) {
-	Response response = Response(_pollfd, client_fd);
+void Http::_get_handler(std::string response_file_path) {
 	std::string prevStatusCode = "500";
 	std::string prevPath = "";
 
@@ -105,7 +105,7 @@ void Http::_get_handler(std::string response_file_path, int client_fd) {
 
 	addLog(logFile,"Status Code: " + prevStatusCode);
 	addLog(logFile,"Path: " + prevPath);
-	response.handle(prevStatusCode, prevPath);
+	_response.handle(prevStatusCode, prevPath);
 }
 
 std::string Http::_get_file_error(std::string status_code) {
