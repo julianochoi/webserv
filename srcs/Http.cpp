@@ -32,24 +32,26 @@ void Http::handle() {
 	sprintf(temp, "%d", _pollfd.revents);
 	addLog(logFile,"HTTP handle> REvents: " + std::string(temp));
 
-	Request request = Request(_pollfd);
-	int client_fd = request.handle();
+	_request = Request(_pollfd);
+	int client_fd = _request.handle();
 	addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
 	sprintf(temp, "%d", client_fd);
 	std::cout << client_fd << std::endl;
-	std::cout << request << std::endl;
-	_set_http_server(request);
+	std::cout << _request << std::endl;
+	_set_http_server();
 	std::cout << _http_server << std::endl;
-	_set_location(request);
+	_set_location();
 	if (_has_location)
 		std::cout << _http_location << std::endl;
 	_response = Response(_pollfd, client_fd);
-	_response_handler(request);
+	if (_validate_request())
+		return;
+	_response_handler();
 }
 
-void Http::_set_http_server(Request request) {
+void Http::_set_http_server() {
 	std::vector<std::string> server_names;
-	std::string host = request.headers()["Host"];
+	std::string host = _request.headers()["Host"];
 
 	_http_server = _servers[0];
 	for (std::vector<Server>::const_iterator  sev = _servers.begin(); sev != _servers.end(); sev++) {
@@ -61,8 +63,8 @@ void Http::_set_http_server(Request request) {
 	}
 }
 
-void Http::_set_location(Request request) {
-	std::vector<std::string> path_tokens = Utils::string_split(request.path(), "/");
+void Http::_set_location() {
+	std::vector<std::string> path_tokens = Utils::string_split(_request.path(), "/");
 	std::string path_test = "";
 
 	for(std::vector<std::string>::const_iterator  it = path_tokens.begin(); it != path_tokens.end(); it++) {
@@ -76,7 +78,7 @@ void Http::_set_location(Request request) {
 	}
 }
 
-void Http::_response_handler(Request request) {
+void Http::_response_handler() {
 	std::string response_file_path;
 
 	if (_index().length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
@@ -85,8 +87,10 @@ void Http::_response_handler(Request request) {
 		response_file_path.append(_root()).append(_remaining_path);
 	addLog(logFile, "Response File Path: " + response_file_path);
 
-	if (!request.method().compare("GET"))
+	if (!_request.method().compare("GET"))
 		_get_handler(response_file_path);
+	else
+		_response.handle("500", "");
 }
 
 void Http::_get_handler(std::string response_file_path) {
@@ -106,6 +110,22 @@ void Http::_get_handler(std::string response_file_path) {
 	addLog(logFile,"Status Code: " + prevStatusCode);
 	addLog(logFile,"Path: " + prevPath);
 	_response.handle(prevStatusCode, prevPath);
+}
+
+bool Http::_validate_request() {
+	std::string prev_status_code = "400";
+	bool has_error = false;
+	std::vector<std::string> allowed_methods = _http_methods();
+
+	if (_request.headers()["Content-Length"].length() && std::atoi(_request.headers()["Content-Length"].c_str()) > _body_size_limit())
+		has_error = true;
+	else if (allowed_methods.size() && !std::count(allowed_methods.begin(), allowed_methods.end(), _request.method()))
+		has_error = true;
+
+	if(has_error)
+		_response.handle(prev_status_code, _get_file_error(prev_status_code));
+
+	return has_error;
 }
 
 std::string Http::_get_file_error(std::string status_code) {
@@ -142,6 +162,28 @@ std::map<int, std::string> Http::_erros_pages(void) const {
 	else
 		return _http_server.erros_pages();
 }
+
+int	Http::_body_size_limit(void) const {
+	if (_has_location)
+		return _http_location.body_size_limit();
+	else
+		return _http_server.body_size_limit();
+}
+
+bool Http::_autoindex(void) const {
+	if (_has_location)
+		return _http_location.autoindex();
+	else
+		return _http_server.autoindex();
+}
+
+std::vector<std::string> Http::_http_methods(void) const {
+	if (_has_location)
+		return _http_location.http_methods();
+	else
+		return _http_server.http_methods();
+}
+
 
 std::ostream &operator<<(std::ostream &out, const Http &http) {
 	(void)http;

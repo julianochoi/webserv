@@ -15,6 +15,9 @@ Request::Request(Request const &request) {
 	_protocol = request.protocol();
 	_protocol_version = request.protocol_version();
 	_buffer = new char[BUFFER_SIZE];
+	_pollfd = request._pollfd;
+	_client_fd = request._client_fd;
+	_total_buffer = request._total_buffer;
 }
 
 Request &Request::operator=(Request const &request) {
@@ -26,6 +29,9 @@ Request &Request::operator=(Request const &request) {
 	_protocol = request.protocol();
 	_protocol_version = request.protocol_version();
 	_buffer = new char[BUFFER_SIZE];
+	_pollfd = request._pollfd;
+	_client_fd = request._client_fd;
+	_total_buffer = request._total_buffer;
 	return *this;
 }
 
@@ -178,7 +184,13 @@ void	Request::_parse_chunked_body() {
 		chunk_total_size += chunk_size;
 	}
 
-	_headers["Content-Length"] = chunk_total_size;
+	// convert chunk_total_size to string
+	std::stringstream string_chunk_size_stream;
+	string_chunk_size_stream << chunk_total_size;
+	std::string chunk_total_size_string;
+	string_chunk_size_stream >> chunk_total_size_string;
+
+	_headers["Content-Length"] = chunk_total_size_string;
 }
 
 void	Request::_set_headers(std::string line) {
