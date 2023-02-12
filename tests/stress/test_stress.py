@@ -10,6 +10,8 @@ def event_loop():
     yield asyncio.get_event_loop()
 
 
+# TODO Disabled for now. Adapt to use siege instead of asyncio
+@pytest.mark.skip
 @pytest.mark.stress
 class TestWebServer:
     @staticmethod
