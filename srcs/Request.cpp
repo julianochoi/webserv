@@ -39,7 +39,7 @@ Request::~Request(void) {
 	delete[] _buffer;
 }
 
-int	Request::handle(void) {
+void	Request::handle(void) {
 	_parse_first_line();
 	if (!_total_buffer.compare("\n"))
 		_parse_headers();
@@ -47,8 +47,6 @@ int	Request::handle(void) {
 		_parse_chunked_body();
 	else if (_headers["Content-Length"].c_str())
 		_parse_full_body();
-
-	return _client_fd;
 }
 
 std::string	Request::_get_line() {

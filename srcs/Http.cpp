@@ -38,17 +38,17 @@ void Http::handle() {
 		throw ClientConnectionError();
 
 	_request = Request(_pollfd, _client_fd);
-	int client_fd = _request.handle();
+	_request.handle();
 	addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
-	sprintf(temp, "%d", client_fd);
-	std::cout << client_fd << std::endl;
+	sprintf(temp, "%d", _client_fd);
+	std::cout << _client_fd << std::endl;
 	std::cout << _request << std::endl;
 	_set_http_server();
 	std::cout << _http_server << std::endl;
 	_set_location();
 	if (_has_location)
 		std::cout << _http_location << std::endl;
-	_response = Response(_pollfd, client_fd);
+	_response = Response(_pollfd, _client_fd);
 	if (_validate_request())
 		return;
 	_response_handler();

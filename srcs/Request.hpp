@@ -49,7 +49,7 @@ class Request {
 		Request& operator=(Request const &request);
 		~Request(void);
 
-		int handle(void);
+		void handle(void);
 
 		std::map<std::string, std::string>	headers(void) const;
 		std::string							body(void) const;
