@@ -164,7 +164,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	if (file.is_open())
 	{
 		send(_client_fd, "HTTP/1.1 ", 9, 0);
-		send(_client_fd, code_pag.c_str(), 3, 0);
+		send(_client_fd, (code_pag + " ").c_str(), 4, 0);
 		send(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
 		send(_client_fd, "\n", 1, 0);
 		
