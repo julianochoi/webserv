@@ -38,7 +38,20 @@ void Http::handle() {
 		throw ClientConnectionError();
 
 	_request = Request(_pollfd, _client_fd);
-	_request.handle();
+	_response = Response(_pollfd, _client_fd);
+
+	try {
+		_request.handle();
+	} catch (Request::BadRequestError& e) {
+		addLog(logFile, "BadRequestError Catched");
+		_response.handle("400", "");
+		return ;
+	} catch (Request::InternalServerError& e) {
+		addLog(logFile, "InternalServerError Catched");
+		_response.handle("500", "");
+		return ;
+	}
+
 	addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
 	sprintf(temp, "%d", _client_fd);
 	std::cout << _client_fd << std::endl;
@@ -48,7 +61,6 @@ void Http::handle() {
 	_set_location();
 	if (_has_location)
 		std::cout << _http_location << std::endl;
-	_response = Response(_pollfd, _client_fd);
 	if (_validate_request())
 		return;
 	_response_handler();

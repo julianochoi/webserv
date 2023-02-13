@@ -58,6 +58,16 @@ class Request {
 		std::string							query(void) const;
 		std::string							protocol(void) const;
 		std::string							protocol_version(void) const;
+
+	class BadRequestError : public std::exception	{
+		public:
+			const char* what() const throw(){ return "Bad Request Error"; };
+	};
+
+	class InternalServerError : public std::exception	{
+		public:
+			const char* what() const throw(){ return "Internal Server Error"; };
+	};
 };
 
 std::ostream &operator<<(std::ostream &out, const Request &request);

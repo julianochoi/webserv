@@ -153,6 +153,8 @@ void	Request::_parse_headers() {
 
 void	Request::_parse_full_body() {
 	int size = std::atoi(_headers["Content-Length"].c_str());
+	if (size < 0)
+		throw BadRequestError();
 	_get_full_body(size);
 }
 
