@@ -96,8 +96,8 @@ test_install: poetry_install venv_install
 test: test_install
 	$(POETRY) run pytest
 
-test_clean: poetry_uninstall venv_uninstall
+test_uninstall: poetry_uninstall venv_uninstall
 
-test_re: test_clean test_install
+test_re: test_uninstall test_install
 
 -include $(DEPS)
