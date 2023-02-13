@@ -10,6 +10,7 @@ The tests for this project were developed using Python and have the following re
 
 * Python >= 3.8.1
 * [Poetry](https://python-poetry.org/docs/ "Poetry is a tool for dependency management and packaging in Python.")
+* [pytest](https://docs.pytest.org "pytest is a mature full-featured Python testing tool that helps you write better programs.")
 
 ## Installing test tools
 
@@ -31,6 +32,12 @@ In order to run the tests, we first need to configure our server settings at `./
 
 - `SERVER_ADDR`: The address where the server is hosted (localhost, 127.0.0.1, etc).
 - `SERVER_PORT`: The port binding of the server to be tested.
+
+Then, in order to run the tests, we execute:
+
+```bash
+make test
+```
 
 ## Uninstall tests
 
