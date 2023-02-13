@@ -33,7 +33,7 @@ dep:
 	which php-cgi || (sudo apt-get update && sudo apt-get install php-cgi)
 
 clean:
-	@$(RM) $(OBJ_DIR)
+	@$(RM) $(OBJDIR)
 
 fclean: clean
 	@$(RM) $(NAME)
@@ -51,10 +51,10 @@ run:
 	@./$(NAME) default.conf
 
 valgrind: all
-	valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./webserv default.conf
+	valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./$(NAME) default.conf
 
 $(OBJDIR):
-	mkdir -p objects
+	@mkdir -p objects
 
 $(OBJDIR)/%.o: %.cpp
 	@$(CC) $(CFLAGS) -c $< -o $@ $(INCPATH)
