@@ -59,4 +59,45 @@ $(OBJDIR):
 $(OBJDIR)/%.o: %.cpp
 	@$(CC) $(CFLAGS) -c $< -o $@ $(INCPATH)
 
+# **************************************************************************** #
+# *----------------------------------Poetry----------------------------------* #
+# **************************************************************************** #
+POETRY_HOME	= /opt/poetry
+POETRY = $(POETRY_HOME)/bin/poetry
+
+poetry_install:  | $(POETRY_HOME)
+$(POETRY_HOME):
+#	Install Poetry: A Python dependency manager
+	curl -sSL https://install.python-poetry.org | sudo POETRY_HOME=$(POETRY_HOME) python3 -
+
+poetry_uninstall:
+	curl -sSL https://install.python-poetry.org | sudo POETRY_HOME=$(POETRY_HOME) python3 - --uninstall
+
+# **************************************************************************** #
+# *----------------------------Virtual Environment---------------------------* #
+# **************************************************************************** #
+VENV_DIR = ./.venv # TODO instead of relative path, set folder equal to makefile location
+venv_install: | poetry_install $(VENV_DIR)
+$(VENV_DIR):
+#	Update and add python support to create virtual environment
+	sudo apt update && sudo apt install -y python3-pip python3.8-venv
+	@echo "Creating Virtual Environment"
+	python3 -m venv .venv
+	$(POETRY) install
+
+venv_uninstall:
+	@$(RM) $(VENV_DIR)
+
+# **************************************************************************** #
+# *-----------------------------------tests----------------------------------* #
+# **************************************************************************** #
+test_install: poetry_install venv_install
+
+test: test_install
+	$(POETRY) run pytest
+
+test_uninstall: poetry_uninstall venv_uninstall
+
+test_re: test_uninstall test_install
+
 -include $(DEPS)

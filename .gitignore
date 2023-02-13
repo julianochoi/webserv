@@ -36,3 +36,7 @@
 log.log
 
 webserv
+.venv
+__pycache__
+*.log
+*workspace
