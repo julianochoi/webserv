@@ -20,6 +20,7 @@ class Http {
 		std::string			_remaining_path;
 		Request					_request;
 		Response				_response;
+		int 						_client_fd;
 
 
 		void _set_http_server();
@@ -45,6 +46,11 @@ class Http {
 		~Http(void);
 
 		void handle();
+
+	class ClientConnectionError : public std::exception	{
+		public:
+			const char* what() const throw(){ return "Client Connection Error"; };
+	};
 };
 
 std::ostream &operator<<(std::ostream &out, const Http &http);

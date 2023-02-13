@@ -2,7 +2,7 @@
 
 Request::Request(void) {}
 
-Request::Request(pollfd const &pollfd): _pollfd(pollfd) {
+Request::Request(pollfd const &pollfd, int client_fd): _pollfd(pollfd), _client_fd(client_fd) {
 	_buffer = new char[BUFFER_SIZE];
 }
 
@@ -40,11 +40,6 @@ Request::~Request(void) {
 }
 
 int	Request::handle(void) {
-	_client_fd = accept(_pollfd.fd, NULL, NULL);
-
-	if (_client_fd == -1)
-		throw ClientConnectionError();
-
 	_parse_first_line();
 	if (!_total_buffer.compare("\n"))
 		_parse_headers();

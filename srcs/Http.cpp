@@ -32,7 +32,12 @@ void Http::handle() {
 	sprintf(temp, "%d", _pollfd.revents);
 	addLog(logFile,"HTTP handle> REvents: " + std::string(temp));
 
-	_request = Request(_pollfd);
+	_client_fd = accept(_pollfd.fd, NULL, NULL);
+
+	if (_client_fd == -1)
+		throw ClientConnectionError();
+
+	_request = Request(_pollfd, _client_fd);
 	int client_fd = _request.handle();
 	addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
 	sprintf(temp, "%d", client_fd);

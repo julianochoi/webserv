@@ -44,7 +44,7 @@ class Request {
 
 	public:
 		Request(void);
-		Request(pollfd const &pollfd);
+		Request(pollfd const &pollfd, int client_fd);
 		Request(Request const &request);
 		Request& operator=(Request const &request);
 		~Request(void);
@@ -58,11 +58,6 @@ class Request {
 		std::string							query(void) const;
 		std::string							protocol(void) const;
 		std::string							protocol_version(void) const;
-
-	class ClientConnectionError : public std::exception	{
-		public:
-			const char* what() const throw(){ return "Client Connection Error"; };
-	};
 };
 
 std::ostream &operator<<(std::ostream &out, const Request &request);
