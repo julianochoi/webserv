@@ -30,6 +30,20 @@ void addLog(const std::string& fileName, const std::string& line) {
 
 
 
+
+
+void createAutoIndex(const std::string& fileName, const std::string& line) {
+	std::ofstream outFile;
+
+    outFile.open(fileName.c_str(), std::ios::out | std::ios::app);
+    if (outFile.is_open()) {
+        outFile << line << std::endl;
+        outFile.close();
+    }
+}
+
+
+
 namespace Utils {
 	std::vector<std::string> string_split(const std::string str, std::string seperators)
 	{
