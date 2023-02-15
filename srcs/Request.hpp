@@ -10,6 +10,7 @@
 #include <sstream>
 
 #define BUFFER_SIZE 1
+#define MAX_URI_LENGTH 1000000
 
 class Request {
 	private:
@@ -24,6 +25,7 @@ class Request {
 		char								*_buffer;
 		int 								_client_fd;
 		std::string							_total_buffer;
+		bool										_headers_error;
 
 
 		std::string		_get_line();
@@ -62,6 +64,11 @@ class Request {
 	class BadRequestError : public std::exception	{
 		public:
 			const char* what() const throw(){ return "Bad Request Error"; };
+	};
+
+	class URITooLongError : public std::exception	{
+		public:
+			const char* what() const throw(){ return "URI Too Long Error"; };
 	};
 
 	class InternalServerError : public std::exception	{

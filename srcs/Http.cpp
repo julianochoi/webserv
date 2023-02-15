@@ -46,6 +46,10 @@ void Http::handle() {
 		addLog(logFile, "BadRequestError Catched");
 		_response.handle("400", "");
 		return ;
+	} catch (Request::URITooLongError& e) {
+		addLog(logFile, "URITooLongError Catched");
+		_response.handle("414", "");
+		return ;
 	} catch (Request::InternalServerError& e) {
 		addLog(logFile, "InternalServerError Catched");
 		_response.handle("500", "");

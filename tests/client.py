@@ -105,7 +105,7 @@ class Client:
         target: str = "/",
         protocol: str = "HTTP",
         version: str = "1.1",
-        timeout: float = 5.0,
+        timeout: float = 15.0,
     ):
         if isinstance(headers, dict):
             req_header = self._header_to_str(headers, method, target, protocol, version)

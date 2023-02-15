@@ -2,7 +2,7 @@
 
 Request::Request(void) {}
 
-Request::Request(pollfd const &pollfd, int client_fd): _pollfd(pollfd), _client_fd(client_fd) {
+Request::Request(pollfd const &pollfd, int client_fd): _pollfd(pollfd), _client_fd(client_fd), _headers_error(false) {
 	_buffer = new char[BUFFER_SIZE];
 }
 
@@ -18,6 +18,7 @@ Request::Request(Request const &request) {
 	_pollfd = request._pollfd;
 	_client_fd = request._client_fd;
 	_total_buffer = request._total_buffer;
+	_headers_error = request._headers_error;
 }
 
 Request &Request::operator=(Request const &request) {
@@ -32,6 +33,7 @@ Request &Request::operator=(Request const &request) {
 	_pollfd = request._pollfd;
 	_client_fd = request._client_fd;
 	_total_buffer = request._total_buffer;
+	_headers_error = request._headers_error;
 	return *this;
 }
 
@@ -129,6 +131,8 @@ void	Request::_parse_first_line() {
 	std::string							 line;
 
 	line = _get_line();
+	if (line.length() > MAX_URI_LENGTH)
+		throw URITooLongError();
 	tokens = Utils::string_split(line, "\t ");
 	_set_method(tokens[0]);
 	addLog(logFile,"Request first line> Method:" + tokens[0]);
@@ -149,9 +153,15 @@ void	Request::_parse_headers() {
 			//addLog(logFile,"Request parse headers> header_line:" + header_line);
 		}
 	}
+
+	if (_headers_error)
+		throw BadRequestError();
 }
 
 void	Request::_parse_full_body() {
+	if (!Utils::is_number(_headers["Content-Length"].c_str()))
+		throw BadRequestError();
+
 	int size = std::atoi(_headers["Content-Length"].c_str());
 	if (size < 0)
 		throw BadRequestError();
@@ -190,8 +200,16 @@ void	Request::_parse_chunked_body() {
 
 void	Request::_set_headers(std::string line) {
 	std::size_t finder = line.find(":");
+	std::size_t finder_spaces = line.find_first_of(" :");
+
+	if (finder_spaces != finder || finder == 0)
+		_headers_error = true;
+
 	std::string key = line.substr(0, finder);
 	std::string value = line.substr(finder + 2, line.length() - finder - 3); // + 2 to igone : and space after host key
+
+	if (_headers.count(key))
+		_headers_error = true;
 	_headers[key] = value;
 }
 void	Request::_set_body(std::string line) { (void)line; }
@@ -201,8 +219,18 @@ void	Request::_set_query(std::string line) { (void)line; }
 void	Request::_set_protocol_info(std::string line) {
 	std::vector<std::string> protocol_infos = Utils::string_split(line, "/");
 
+	if (protocol_infos.size() != 2) {
+		_headers_error = true;
+		return ;
+	}
 	_protocol = protocol_infos[0];
 	_protocol_version = protocol_infos[1];
+
+	size_t return_index = _protocol_version.find("\r");
+	if (return_index != std::string::npos)
+		_protocol_version.erase(return_index, 1);
+	if (_protocol.compare("HTTP") || _protocol_version.compare("1.1"))
+		_headers_error = true;
 }
 
 std::map<std::string, std::string>	Request::headers(void) const { return _headers; }
