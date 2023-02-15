@@ -4,6 +4,11 @@
 #include <cstdio>
 #include <ctime>
 
+#include <vector>
+#include <dirent.h>
+
+using namespace std;
+
 
 /*In this code, std::ofstream is used to open the file for writing
 and the std::ios::out and std::ios::app flags are used to open the
@@ -40,6 +45,50 @@ void createAutoIndex(const std::string& fileName, const std::string& line) {
         outFile << line << std::endl;
         outFile.close();
     }
+}
+
+
+
+void createhmtl(const std::string& Path) {
+
+	// Erase HTML file
+	remove(AutoIndexHTML);
+
+    // Open the directory using the opendir function
+    DIR* dir = opendir(Path.c_str());
+    if (!dir) 
+		return;
+        
+
+    // Create the HTML for the autoindex
+	createAutoIndex(AutoIndexHTML,"<!DOCTYPE html>\n");
+	createAutoIndex(AutoIndexHTML,"<html>\n");
+	createAutoIndex(AutoIndexHTML,"<head><title>Autoindex</title></head>\n");
+	createAutoIndex(AutoIndexHTML,"<body>\n");
+	createAutoIndex(AutoIndexHTML,"<h1>Index of " + Path + "</h1>\n");
+	createAutoIndex(AutoIndexHTML,"<hr>\n");
+	createAutoIndex(AutoIndexHTML,"<table>\n");
+	createAutoIndex(AutoIndexHTML,"<tr><th>Name</th></tr>\n");
+
+
+    // Add an entry for each file in the directory
+	// Iterate over the files in the directory using the readdir function
+    dirent* entry;
+    while ((entry = readdir(dir))) {
+        if (entry->d_name[0] != '.')  // Exclude hidden files
+			createAutoIndex(AutoIndexHTML,"<tr><td><a href=\"" + string(entry->d_name) + "\">" + string(entry->d_name) + "</a></td></tr>\n");
+		 
+    }
+
+	// Close the directory using the closedir function
+    closedir(dir);
+		
+    // Finish the HTML file
+	createAutoIndex(AutoIndexHTML,"</table>\n");
+	createAutoIndex(AutoIndexHTML,"<hr>\n");
+	createAutoIndex(AutoIndexHTML,"<address>End of process</address>\n");
+	createAutoIndex(AutoIndexHTML,"</body>\n");
+	createAutoIndex(AutoIndexHTML,"</html>");
 }
 
 

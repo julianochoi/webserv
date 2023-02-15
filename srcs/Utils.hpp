@@ -50,6 +50,7 @@ namespace Utils {
 void addLog(const std::string& fileName, const std::string& line);
 
 void createAutoIndex(const std::string& fileName, const std::string& line);
+void createhmtl(const std::string& Path) ;
 
 
 #endif
