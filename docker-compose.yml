@@ -1,0 +1,18 @@
+version: '3'
+services:
+  webserv:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000-4000:3000-4000
+    volumes:
+      - .:/app
+    networks:
+      - webserv-net
+    environment:
+      - TERM=linux
+
+networks:
+  webserv-net:
+    driver: bridge
