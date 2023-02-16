@@ -20,7 +20,7 @@ int	main(int argc, char **argv) {
 	
 	addLog(logFile,"Start main");
 
-	createhmtl("root_html");
+	//createhmtl("root_html");
 
 	std::cout << "Chronometer started." << std::endl;
 	std::time_t start = std::time(0);

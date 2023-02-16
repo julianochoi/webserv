@@ -1,11 +1,15 @@
 #include <Response.hpp>
 #include <Request.hpp>
 #include <Server.hpp>
+#include <Utils.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <map>
 #include <sys/stat.h>
+
+#include <dirent.h>
+
 
 using namespace std;
 
@@ -40,6 +44,7 @@ void loadMapStatusCode(void){
 void Response::handle(std::string statuscode, std::string pathHTML) {
 	std::map<std::string, std::string> MapStatusCode;
 
+	MapStatusCode.insert(std::make_pair("0", "AutoIndex"));
 	MapStatusCode.insert(std::make_pair("100", "Continue"));
 	MapStatusCode.insert(std::make_pair("101", "Switching Protocols"));
 	MapStatusCode.insert(std::make_pair("102", "Processing"));
@@ -135,14 +140,76 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	struct stat file_status;
 	char temp[100];
 	string bodylength;
-	//string fullpath;
+	std::ofstream outFile;
 
-	/*if (isdigit(code_pag[0]))
-		fullpath = "root_html/default_responses/" + code_pag + string(".html");
-	if (code_pag[0] == 'i')
-		fullpath = "root_html/" + code_pag + string(".html");*/
+    if (stat(pathHTML.c_str(), &file_status) == 0){
+		sprintf(temp, "%ld", file_status.st_size);
+		addLog(logFile,"Body bytes: " + std::string(temp));
+		//std::cout << "The size of the file is: " << file_status.st_size << " bytes." << std::endl;
+		//std::cout << "The size of the file is: " << 17 + file_status.st_size << " bytes." << std::endl;
+	}
 
-	//fullpath = string(path) + code_pag + string(".html");
+
+	remove(AutoIndexHTML);
+	createhmtl(pathHTML);
+	if (code_pag == "0"){
+		addLog(logFile,"Create autoindex " + pathHTML);
+		addLog(logFile,"Create autoindex " + string(AutoIndexHTML));
+		//createhmtl(AutoIndexHTML);
+		//ifstream file(AutoIndexHTML); /*AutoIndexHTML autoindex.html era pathHTML.c_str()*/
+		//if (file.is_open())
+		//{
+			addLog(logFile,"FILE OPENED");
+			send(_client_fd, "HTTP/1.1 \n", 10, 0);
+			send(_client_fd, "<!DOCTYPE html>\n", 16, 0);
+			send(_client_fd, "<html>\n", 7, 0);
+			//send(_client_fd, "<head><title>Autoindex</title></head>\n", 38, 0);
+			//send(_client_fd, "<body>\n", 7, 0);
+			//send(_client_fd, "<h1>Index of ", 13, 0);
+			//send(_client_fd, &pathHTML, pathHTML.length(), 0);
+			//send(_client_fd, "</h1>\n", 6, 0);
+			//send(_client_fd, "<hr>\n", 5, 0);
+			//send(_client_fd, "<table>\n", 8, 0);
+			//send(_client_fd, "<tr><th>Name</th></tr>\n", 23, 0);
+
+
+			//send(_client_fd, "</table>\n", 9, 0);
+			//send(_client_fd, "<hr>\n", 5, 0);
+			//send(_client_fd, "<address>End of process</address>\n", 34, 0);
+			//send(_client_fd, "</body>\n", 8, 0);
+			send(_client_fd, "</html>", 7, 0);
+
+			/*send(_client_fd, "HTTP/1.1 ", 9, 0);
+			send(_client_fd, "100 ", 4, 0);
+			send(_client_fd, "100", 3, 0);
+			send(_client_fd, "\n", 1, 0);*/
+			
+			/*bodylength = "Content-Length: " + std::string(temp) + "\n";
+			send(_client_fd, bodylength.c_str(), bodylength.length(), 0);
+			send(_client_fd, "Content-Type: text/html\n", 24, 0);
+			send(_client_fd, "\n", 1, 0);
+
+			while (getline(file, line))
+			{
+				//std::cout << "line" << std::endl;
+				//std::cout << line << " - " << line.length() <<std::endl;
+				buffer=line.c_str();
+				buffer_len=line.length();
+				send(_client_fd, buffer, buffer_len, 0);
+				send(_client_fd, "\n", 1, 0);
+			}
+			*/
+		//	file.close();
+		//	addLog(logFile,"FILE CLOSED");
+		//}
+		close(_client_fd);
+		addLog(logFile,"FINISHED");
+		//return;
+	}
+
+
+
+
 	addLog(logFile,"MsgCode " + msgStatusCode);
 	addLog(logFile,"Path " + pathHTML);
 
@@ -151,12 +218,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 
 	std::cout << code_pag << std::endl;
 
-	if (stat(pathHTML.c_str(), &file_status) == 0){
-		sprintf(temp, "%ld", file_status.st_size);
-		addLog(logFile,"Body bytes: " + std::string(temp));
-		std::cout << "The size of the file is: " << file_status.st_size << " bytes." << std::endl;
-		std::cout << "The size of the file is: " << 17 + file_status.st_size << " bytes." << std::endl;
-	}
+	
 
 
 	//ifstream file(fullpath.c_str());

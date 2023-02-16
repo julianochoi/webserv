@@ -1,8 +1,13 @@
 #include <Http.hpp>
+#include <Utils.hpp>
 
 #include <iostream>
 #include <fstream>
 #include <string>
+
+#include <sys/stat.h>
+#include <string>
+using namespace std;
 
 
 Http::Http(void) {}
@@ -101,6 +106,7 @@ void Http::_set_location() {
 
 void Http::_response_handler() {
 	std::string response_file_path;
+	//struct stat s;
 
 	if (_index().length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
 		response_file_path.append(_root()).append("/").append(_index());
@@ -108,10 +114,26 @@ void Http::_response_handler() {
 		response_file_path.append(_root()).append(_remaining_path);
 	addLog(logFile, "Response File Path: " + response_file_path);
 
-	if (!_request.method().compare("GET"))
-		_get_handler(response_file_path);
-	else
+
+	addLog(logFile,"CHECK: ");
+
+	if (isFile(response_file_path)) {
+        addLog(logFile,"FILE: " + response_file_path);
+		/*eh preciso ver os outros metodos*/
+		if (!_request.method().compare("GET"))
+			_get_handler(response_file_path);
+		else
+			_response.handle("500", "");
+    } else if (isDirectory(response_file_path)) {
+        addLog(logFile,"DIR: " + response_file_path);
+		/*inserir o if para o autoindex on*/
+		_response.handle("0", response_file_path);
+    } else {
+        addLog(logFile,"DOES NOT EXIST: " + response_file_path);
 		_response.handle("500", "");
+    }
+
+
 }
 
 void Http::_get_handler(std::string response_file_path) {
@@ -132,6 +154,8 @@ void Http::_get_handler(std::string response_file_path) {
 	addLog(logFile,"Path: " + prevPath);
 	_response.handle(prevStatusCode, prevPath);
 }
+
+
 
 bool Http::_validate_request() {
 	std::string prev_status_code = "400";

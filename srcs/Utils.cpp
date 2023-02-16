@@ -7,7 +7,31 @@
 #include <vector>
 #include <dirent.h>
 
+#include <sys/stat.h>
+#include <iostream>
+
 using namespace std;
+
+
+
+bool isFile(const std::string& path) {
+    struct stat path_stat;
+    if (stat(path.c_str(), &path_stat) != 0) {
+        std::cerr << "Error: stat failed on " << path << std::endl;
+        return false;
+    }
+    return S_ISREG(path_stat.st_mode);
+}
+
+bool isDirectory(const std::string& path) {
+    struct stat path_stat;
+    if (stat(path.c_str(), &path_stat) != 0) {
+        std::cerr << "Error: stat failed on " << path << std::endl;
+        return false;
+    }
+    return S_ISDIR(path_stat.st_mode);
+}
+
 
 
 /*In this code, std::ofstream is used to open the file for writing

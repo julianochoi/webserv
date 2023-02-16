@@ -47,10 +47,13 @@ namespace Utils {
 }
 
 
+bool isFile(const std::string& path);
+bool isDirectory(const std::string& path);
+
 void addLog(const std::string& fileName, const std::string& line);
 
 void createAutoIndex(const std::string& fileName, const std::string& line);
-void createhmtl(const std::string& Path) ;
+void createhmtl(const std::string& Path);
 
 
 #endif
