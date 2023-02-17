@@ -117,22 +117,10 @@ void Http::_response_handler() {
 
 	addLog(logFile,"CHECK: ");
 
-	if (isFile(response_file_path)) {
-        addLog(logFile,"FILE: " + response_file_path);
-		/*eh preciso ver os outros metodos*/
-		if (!_request.method().compare("GET"))
-			_get_handler(response_file_path);
-		else
-			_response.handle("500", "");
-    } else if (isDirectory(response_file_path)) {
-        addLog(logFile,"DIR: " + response_file_path);
-		/*inserir o if para o autoindex on*/
-		_response.handle("0", response_file_path);
-    } else {
-        addLog(logFile,"DOES NOT EXIST: " + response_file_path);
+	if (!_request.method().compare("GET"))
+		_get_handler(response_file_path);
+	else
 		_response.handle("500", "");
-    }
-
 
 }
 

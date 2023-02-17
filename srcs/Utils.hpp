@@ -30,7 +30,7 @@
 #define COLOR_OFF 		"\033[0m"
 
 #define logFile			"log.log"
-#define AutoIndexHTML	"root_html/autoindex.html"
+#define AutoIndexHTML	"autoindex.html"
 
 
 extern time_t TS;
@@ -52,8 +52,7 @@ bool isDirectory(const std::string& path);
 
 void addLog(const std::string& fileName, const std::string& line);
 
-void createAutoIndex(const std::string& fileName, const std::string& line);
-void createhmtl(const std::string& Path);
+std::string createhmtl(const std::string& Path);
 
 
 #endif

@@ -61,58 +61,45 @@ void addLog(const std::string& fileName, const std::string& line) {
 
 
 
-void createAutoIndex(const std::string& fileName, const std::string& line) {
-	std::ofstream outFile;
-
-    outFile.open(fileName.c_str(), std::ios::out | std::ios::app);
-    if (outFile.is_open()) {
-        outFile << line << std::endl;
-        outFile.close();
-    }
-}
 
 
+string createhmtl(const std::string& Path) {
+	string htmlAutoIndex;
 
-void createhmtl(const std::string& Path) {
+	htmlAutoIndex = "<!DOCTYPE html>\n";
+	htmlAutoIndex += "<html>\n";
+	htmlAutoIndex += "<head><title>Autoindex</title></head>\n";
+	htmlAutoIndex += "<body>\n";
+	htmlAutoIndex += "<h1>Index of " + Path + "</h1>\n";
+	htmlAutoIndex += "<hr>\n";
+	htmlAutoIndex += "<table>\n";
+	htmlAutoIndex += "<tr><th>Name</th></tr>\n";
 
-	// Erase HTML file
-	remove(AutoIndexHTML);
+	// Add an entry for each file in the directory
+	// Iterate over the files in the directory using the readdir function
 
-    // Open the directory using the opendir function
+	// Open the directory using the opendir function
     DIR* dir = opendir(Path.c_str());
     if (!dir) 
-		return;
-        
+		return("");
 
-    // Create the HTML for the autoindex
-	createAutoIndex(AutoIndexHTML,"<!DOCTYPE html>\n");
-	createAutoIndex(AutoIndexHTML,"<html>\n");
-	createAutoIndex(AutoIndexHTML,"<head><title>Autoindex</title></head>\n");
-	createAutoIndex(AutoIndexHTML,"<body>\n");
-	createAutoIndex(AutoIndexHTML,"<h1>Index of " + Path + "</h1>\n");
-	createAutoIndex(AutoIndexHTML,"<hr>\n");
-	createAutoIndex(AutoIndexHTML,"<table>\n");
-	createAutoIndex(AutoIndexHTML,"<tr><th>Name</th></tr>\n");
-
-
-    // Add an entry for each file in the directory
-	// Iterate over the files in the directory using the readdir function
     dirent* entry;
     while ((entry = readdir(dir))) {
         if (entry->d_name[0] != '.')  // Exclude hidden files
-			createAutoIndex(AutoIndexHTML,"<tr><td><a href=\"" + string(entry->d_name) + "\">" + string(entry->d_name) + "</a></td></tr>\n");
-		 
+			htmlAutoIndex += "<tr><td><a href=\"" + string(entry->d_name) + "\">" + string(entry->d_name) + "</a></td></tr>\n";
     }
-
+    
 	// Close the directory using the closedir function
     closedir(dir);
 		
     // Finish the HTML file
-	createAutoIndex(AutoIndexHTML,"</table>\n");
-	createAutoIndex(AutoIndexHTML,"<hr>\n");
-	createAutoIndex(AutoIndexHTML,"<address>End of process</address>\n");
-	createAutoIndex(AutoIndexHTML,"</body>\n");
-	createAutoIndex(AutoIndexHTML,"</html>");
+	htmlAutoIndex += "</table>\n";
+	htmlAutoIndex += "<hr>\n";
+	htmlAutoIndex += "<address>End of process</address>\n";
+	htmlAutoIndex += "</body>\n";
+	htmlAutoIndex += "</html>\n";
+
+	return (htmlAutoIndex);
 }
 
 
