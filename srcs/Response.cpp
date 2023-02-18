@@ -10,6 +10,7 @@
 
 #include <dirent.h>
 #include <stdio.h>
+#include <cstdio>
 
 using namespace std;
 
@@ -44,6 +45,7 @@ void loadMapStatusCode(void){
 void Response::handle(std::string statuscode, std::string pathHTML) {
 	std::map<std::string, std::string> MapStatusCode;
 
+	MapStatusCode.insert(std::make_pair("-1", "Delete"));
 	MapStatusCode.insert(std::make_pair("0", "Upload"));
 	MapStatusCode.insert(std::make_pair("100", "Continue"));
 	MapStatusCode.insert(std::make_pair("101", "Switching Protocols"));
@@ -142,6 +144,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	string bodylength;
 	std::ofstream outFile;
 
+
    if (isDirectory(pathHTML)){
 	   	line = createhmtl(pathHTML);
 		addLog(logFile,line);
@@ -212,6 +215,37 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		addLog(logFile,"Transfer ok");
 		
 		addLog(logFile,"POST END------------------------------");
+		return;
+   }
+
+
+
+
+
+
+
+   if (code_pag == "-1"){
+
+	   /*curl -v -X DELETE 127.0.0.1:3490/file_upload/1MB.txt OK => insert into tests*/
+	   /*curl -v -X DELETE 127.0.0.1:3490/file_upload/1MB2.txt ERROR expected => insert into tests*/
+
+		addLog(logFile,"DELETE INIT-----------------------------");
+		addLog(logFile,"Source file: " + pathHTML);
+
+		if (access(pathHTML.c_str(), F_OK) == -1) {
+			addLog(logFile,"File doesn't exist!");
+			addLog(logFile,"DELETE END------------------------------");
+			return;
+		}
+
+		if (std::remove(pathHTML.c_str()) != 0) {
+			addLog(logFile,"Error deleting file!");
+			addLog(logFile,"DELETE END------------------------------");
+			return;
+		} 
+		
+		addLog(logFile,"File successfully deleted!");
+		addLog(logFile,"DELETE END------------------------------");
 		return;
    }
 

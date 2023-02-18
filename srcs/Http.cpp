@@ -116,10 +116,10 @@ void Http::_response_handler() {
 
 	if (!_request.method().compare("GET"))
 		_get_handler(response_file_path);
-	else if (!_request.method().compare("POST")) {
+	else if (!_request.method().compare("POST"))
 		_response.handle("0", response_file_path);
-		_response.handle("200", "root_html/index3.html");
-	}
+	else if (!_request.method().compare("DELETE"))
+		_response.handle("-1", response_file_path);
 	else
 		_response.handle("500", "");
 }
