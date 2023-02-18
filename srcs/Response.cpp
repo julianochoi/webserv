@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 
 #include <dirent.h>
-
+#include <stdio.h>
 
 using namespace std;
 
@@ -44,7 +44,7 @@ void loadMapStatusCode(void){
 void Response::handle(std::string statuscode, std::string pathHTML) {
 	std::map<std::string, std::string> MapStatusCode;
 
-	MapStatusCode.insert(std::make_pair("0", "AutoIndex"));
+	MapStatusCode.insert(std::make_pair("0", "Upload"));
 	MapStatusCode.insert(std::make_pair("100", "Continue"));
 	MapStatusCode.insert(std::make_pair("101", "Switching Protocols"));
 	MapStatusCode.insert(std::make_pair("102", "Processing"));
@@ -162,7 +162,63 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		close(_client_fd);
 		return;
    }
+
+
+
+   if (code_pag == "0"){
+		/*curl -v -d fileupload1.txt  POST 127.0.0.1:3490/fileupload1.txt*/
+		/*CREATE 1MB TXT
+		yes 1MB_ | awk '{ printf("%s", $0)}' | dd of=root_html/1MB.txt bs=1024 count=1024 2>/dev/null
+		curl -v -d 1MB.txt  POST 127.0.0.1:3490/1MB.txt
+		CREATE 100MB TXT
+		yes 100MB_ | awk '{ printf("%s", $0)}' | dd of=root_html/100MB.txt bs=1024000 count=1024000 2>/dev/null
+		curl -v -d 1M00.txt  POST 127.0.0.1:3490/100M.txt*/
+		addLog(logFile,"POST INIT-----------------------------");
+		addLog(logFile,"Source file: " + pathHTML);
+		FILE* src_file = fopen(pathHTML.c_str(), "rb");
+		if (!src_file) {
+			addLog(logFile,"Failed to open source file");
+			return;
+		}
+		addLog(logFile,"Check source...ok");
+		std::string dest_filename = "root_html/file_upload/" + pathHTML.substr(pathHTML.find_last_of("/\\") + 1);
+		addLog(logFile,"Defining destination..." + dest_filename);
+		
+		
+		FILE* dest_file = fopen(dest_filename.c_str(), "wb");
+		if (!dest_file) {
+			addLog(logFile,"Failed to open destination file");
+			fclose(src_file);
+			return;
+		}
+		addLog(logFile,"Check destination...ok");
+
+		addLog(logFile,"Moving...");
+		const int buffer_size = 1024;
+		char buffer[buffer_size];
+		size_t read_count;
+
+		while ((read_count = fread(buffer, 1, buffer_size, src_file)) > 0) {
+			if (fwrite(buffer, 1, read_count, dest_file) != read_count)	{
+				addLog(logFile,"Error writing to destination file");
+				fclose(src_file);
+				fclose(dest_file);
+				return;
+			}
+		}
+
+		fclose(src_file);
+		fclose(dest_file);
+		addLog(logFile,"Transfer ok");
+		
+		addLog(logFile,"POST END------------------------------");
+		return;
+   }
+
 	
+
+
+
 
 	addLog(logFile,"MsgCode " + msgStatusCode);
 	addLog(logFile,"Path " + pathHTML);

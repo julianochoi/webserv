@@ -106,7 +106,6 @@ void Http::_set_location() {
 
 void Http::_response_handler() {
 	std::string response_file_path;
-	//struct stat s;
 
 	if (_index().length() && (!_remaining_path.length() || !_remaining_path.compare("/")))
 		response_file_path.append(_root()).append("/").append(_index());
@@ -115,13 +114,14 @@ void Http::_response_handler() {
 	addLog(logFile, "Response File Path: " + response_file_path);
 
 
-	addLog(logFile,"CHECK: ");
-
 	if (!_request.method().compare("GET"))
 		_get_handler(response_file_path);
+	else if (!_request.method().compare("POST")) {
+		_response.handle("0", response_file_path);
+		_response.handle("200", "root_html/index3.html");
+	}
 	else
 		_response.handle("500", "");
-
 }
 
 void Http::_get_handler(std::string response_file_path) {
