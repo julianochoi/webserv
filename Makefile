@@ -48,10 +48,10 @@ run:
 	@make -s
 	@echo "\033[1;32m✔️ Ready!\033[0m"
 	@echo "\n\033[1;35m🌐 Exec WebServ\033[0m"
-	@./$(NAME) default.conf
+	@./$(NAME)
 
 valgrind: all
-	valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./$(NAME) default.conf
+	valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./$(NAME)
 
 $(OBJDIR):
 	@mkdir -p objects

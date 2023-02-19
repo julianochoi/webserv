@@ -16,13 +16,18 @@ FileParser::~FileParser(void) {}
 std::vector<Server> FileParser::parse(int argc, char **argv) {
 	std::ifstream	fs;
 	std::string		line;
+	std::string		config_filepath;
 
 	addLog(logFile,"Detecting number of arguments");
-	if (argc != 2)
+	if (argc == 1)
+		config_filepath = "./config_files/default.conf";
+	else if (argc == 2)
+		config_filepath = argv[1];
+	else
 		throw InvalidNumberOfArgs();
 
 	addLog(logFile,"Opening file:");
-	fs.open(argv[1], std::ifstream::in);
+	fs.open(config_filepath.c_str(), std::ifstream::in);
 
 	if(!fs.is_open())
 		throw InvalidConfigFile();

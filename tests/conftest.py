@@ -31,7 +31,7 @@ def run_server():
 
     webserv_path = search_upwards_for_file("webserv", dir_path=True)
     with open("logs/stdout.log", "a") as out, open("logs/stderr.log", "a") as err:
-        p = subprocess.Popen(["./webserv", "default.conf"], cwd=webserv_path, stdout=out, stderr=err)
+        p = subprocess.Popen(["./webserv"], cwd=webserv_path, stdout=out, stderr=err)
     p.poll()
     if p.returncode:
         exit(p.returncode)
