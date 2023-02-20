@@ -30,6 +30,7 @@ class Server {
 		std::vector<std::string>				_index;
 		std::map<std::string, ServerLocation>	_locations;
 		std::string								_cgi_extension;
+		std::string								_cgi_path;
 
 		void	_parse_location_attributes(std::ifstream &fs, std::string line, std::string path);
 		void	_set_server_attributes(std::vector<std::string> line_tokens);
@@ -69,6 +70,7 @@ class Server {
 		std::vector<std::string>				index(void) const;
 		std::map<std::string, ServerLocation>	locations(void) const;
 		std::string								cgi_extension(void) const;
+		std::string								cgi_path(void) const;
 		ServerLocation							location(std::string path) const;
 
 	class InvalidServerParam : public std::exception
@@ -81,6 +83,12 @@ class Server {
 	{
 		public:
 			const char* what() const throw(){ return "Missing Server Args"; };
+	};
+
+	class InvalidNumberOfConfigArgs : public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Number of Config Args"; };
 	};
 
 	class InvalidHost : public std::exception
@@ -105,6 +113,12 @@ class Server {
 	{
 		public:
 			const char* what() const throw(){ return "Invalid CGI Extension"; };
+	};
+
+	class InvalidCGIPath: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid CGI Path"; };
 	};
 
 	class InvalidAutoIndexParam: public std::exception

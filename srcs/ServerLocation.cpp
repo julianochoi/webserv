@@ -10,6 +10,7 @@ ServerLocation::ServerLocation(Server const &server_location) {
 	_autoindex = server_location.autoindex();
 	_index = server_location.index();
 	_cgi_extension = server_location.cgi_extension();
+	_cgi_path = server_location.cgi_path();
 	_erros_pages = server_location.erros_pages();
 	_body_size_limit = server_location.body_size_limit();
 }
@@ -21,6 +22,7 @@ ServerLocation::ServerLocation(ServerLocation const &server_location) {
 	_autoindex = server_location.autoindex();
 	_index = server_location.index();
 	_cgi_extension = server_location.cgi_extension();
+	_cgi_path = server_location.cgi_path();
 	_erros_pages = server_location.erros_pages();
 	_body_size_limit = server_location.body_size_limit();
 }
@@ -33,6 +35,7 @@ ServerLocation &ServerLocation::operator=(ServerLocation const &server_location)
 		_autoindex = server_location.autoindex();
 		_index = server_location.index();
 		_cgi_extension = server_location.cgi_extension();
+		_cgi_path = server_location.cgi_path();
 		_erros_pages = server_location.erros_pages();
 		_body_size_limit = server_location.body_size_limit();
 	}
@@ -64,6 +67,7 @@ int ServerLocation::body_size_limit(void) const { return _body_size_limit; }
 bool ServerLocation::autoindex(void) const { return _autoindex; }
 std::vector<std::string> ServerLocation::index(void) const { return _index; }
 std::string ServerLocation::cgi_extension(void) const { return _cgi_extension; }
+std::string ServerLocation::cgi_path(void) const { return _cgi_path; }
 
 void	ServerLocation::_set_location_attributes(std::vector<std::string> line_tokens) {
 	if (line_tokens.size() <= 1) {
@@ -113,12 +117,37 @@ void	ServerLocation::_set_client_body_size_attribute(std::vector<std::string> li
 }
 
 void	ServerLocation::_set_cgi_attribute(std::vector<std::string> line_tokens) {
+	std::ifstream file;
+
 	if (line_tokens[1].size() < 2 || line_tokens[1][0] != '.') {
-		std::cerr << "CGI - " << line_tokens[1] << std::endl;
+		addLog(logFile, "CGI - " + line_tokens[1] + " is not a valid extension.");
 		throw InvalidCGIExtension();
 	}
-
 	this->_cgi_extension = line_tokens[1];
+	switch (line_tokens.size()) {
+	case 2:
+		break;
+	case 3:
+		{
+			file.open(line_tokens[2].c_str());
+			if (file) {
+				this->_cgi_path = line_tokens[2];
+				file.close();
+			}
+			else{
+				addLog(logFile, "CGI - " + line_tokens[2] + " is not a valid path.");
+				throw InvalidCGIPath();
+			}
+			break;
+		}
+	default:
+		{
+			std::cerr << "\tCGI - Config: cgi .<cgi_extension> [cgi_path]" << std::endl;
+			std::cerr << "\tExample: cgi .py /usr/bin/python3" << std::endl;
+			throw InvalidNumberOfConfigArgs();
+			break;
+		}
+	}
 }
 
 void	ServerLocation::_set_http_methods_attribute(std::vector<std::string> line_tokens) {
@@ -169,6 +198,8 @@ std::ostream &operator<<(std::ostream &out, ServerLocation const &server_locatio
 	out << "  Client max body size: " << server_location.body_size_limit() << std::endl;
 
 	out << "  Cgi extension: " << server_location.cgi_extension() << std::endl;
+
+	out << "Cgi path: " << server_location.cgi_path() << std::endl;
 
 	out << "  Root: " << server_location.root() << std::endl;
 

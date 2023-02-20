@@ -19,6 +19,7 @@ class ServerLocation {
 		bool												_autoindex;
 		std::vector<std::string>		_index;
 		std::string									_cgi_extension;
+		std::string									_cgi_path;
 		std::map<int, std::string>	_erros_pages;
 		int													_body_size_limit;
 
@@ -50,6 +51,7 @@ class ServerLocation {
 		bool																	autoindex(void) const;
 		std::vector<std::string>							index(void) const;
 		std::string														cgi_extension(void) const;
+		std::string														cgi_path(void) const;
 
 	class InvalidLocationParam : public std::exception
 	{
@@ -61,6 +63,12 @@ class ServerLocation {
 	{
 		public:
 			const char* what() const throw(){ return "Missing Location Args"; };
+	};
+
+	class InvalidNumberOfConfigArgs : public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Number of Config Args"; };
 	};
 
 	class InvalidRoot: public std::exception
@@ -79,6 +87,12 @@ class ServerLocation {
 	{
 		public:
 			const char* what() const throw(){ return "Invalid CGI Extension"; };
+	};
+
+	class InvalidCGIPath: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid CGI Path"; };
 	};
 
 	class InvalidAutoIndexParam: public std::exception

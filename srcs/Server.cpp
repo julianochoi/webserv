@@ -17,6 +17,7 @@ Server::Server(Server const &server) {
 	_index = server.index();
 	_locations = server.locations();
 	_cgi_extension = server.cgi_extension();
+	_cgi_path = server.cgi_path();
 }
 
 Server &Server::operator=(Server const &server) {
@@ -33,6 +34,7 @@ Server &Server::operator=(Server const &server) {
 	_index = server.index();
 	_locations = server.locations();
 	_cgi_extension = server.cgi_extension();
+	_cgi_path = server.cgi_path();
 	return *this;
 }
 
@@ -71,6 +73,7 @@ std::vector<std::string> Server::index(void) const { return _index; }
 std::map<std::string, ServerLocation> Server::locations(void) const { return _locations; }
 ServerLocation Server::location(std::string path) const { return _locations.at(path); }
 std::string Server::cgi_extension(void) const { return _cgi_extension; }
+std::string Server::cgi_path(void) const { return _cgi_path; }
 
 void	Server::_parse_location_attributes(std::ifstream &fs, std::string line, std::string path) {
 	ServerLocation location(*this);
@@ -165,12 +168,37 @@ void	Server::_set_client_body_size_attribute(std::vector<std::string> line_token
 }
 
 void	Server::_set_cgi_attribute(std::vector<std::string> line_tokens) {
+	std::ifstream file;
+
 	if (line_tokens[1].size() < 2 || line_tokens[1][0] != '.') {
-		std::cerr << "CGI - " << line_tokens[1] << std::endl;
+		addLog(logFile, "CGI - " + line_tokens[1] + " is not a valid extension.");
 		throw InvalidCGIExtension();
 	}
-
 	this->_cgi_extension = line_tokens[1];
+	switch (line_tokens.size()) {
+	case 2:
+		break;
+	case 3:
+		{
+			file.open(line_tokens[2].c_str());
+			if (file) {
+				this->_cgi_path = line_tokens[2];
+				file.close();
+			}
+			else{
+				addLog(logFile, "CGI - " + line_tokens[2] + " is not a valid path.");
+				throw InvalidCGIPath();
+			}
+			break;
+		}
+	default:
+		{
+			std::cerr << "\tCGI - Config: cgi .<cgi_extension> [cgi_path]" << std::endl;
+			std::cerr << "\tExample: cgi .py /usr/bin/python3" << std::endl;
+			throw InvalidNumberOfConfigArgs();
+			break;
+		}
+	}
 }
 
 void	Server::_set_http_methods_attribute(std::vector<std::string> line_tokens) {
@@ -266,6 +294,8 @@ std::ostream &operator<<(std::ostream &out, const Server &server)
 	out << "Client max body size: " << server.body_size_limit() << std::endl;
 
 	out << "Cgi extension: " << server.cgi_extension() << std::endl;
+
+	out << "Cgi path: " << server.cgi_path() << std::endl;
 
 	out << "Root: " << server.root() << std::endl;
 
