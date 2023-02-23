@@ -31,17 +31,6 @@ Response &Response::operator=(Response const &response) {
 
 Response::~Response(void) {}
 
-
-/*
-void loadMapStatusCode(void){
-	std::map<std::string, std::string> MapStatusCode;
-    MapStatusCode.insert(std::make_pair("100", "root_html/default_responses/"));
-	MapStatusCode.insert(std::make_pair("404", "root_html/default_responses/"));
-	MapStatusCode.insert(std::make_pair("index2", "root_html/"));
-	MapStatusCode.insert(std::make_pair("index3", "root_html/"));
-}*/
-
-
 void Response::handle(std::string statuscode, std::string pathHTML) {
 	std::map<std::string, std::string> MapStatusCode;
 
@@ -55,18 +44,18 @@ void Response::handle(std::string statuscode, std::string pathHTML) {
 	MapStatusCode.insert(std::make_pair("202", "Accepted"));
 	MapStatusCode.insert(std::make_pair("203", "Non-Authoritative Information"));
 	MapStatusCode.insert(std::make_pair("204", "No Content"));
-	//MapStatusCode.insert(std::make_pair("205", "Reset Content"));
+	MapStatusCode.insert(std::make_pair("205", "Reset Content"));
 	MapStatusCode.insert(std::make_pair("206", "Partial Content"));
 	MapStatusCode.insert(std::make_pair("207", "Multi-Status"));
-	//MapStatusCode.insert(std::make_pair("208", "Already Reported"));
-	//MapStatusCode.insert(std::make_pair("226", "IM Used"));
+	MapStatusCode.insert(std::make_pair("208", "Already Reported"));
+	MapStatusCode.insert(std::make_pair("226", "IM Used"));
 	MapStatusCode.insert(std::make_pair("300", "Multiple Choices"));
 	MapStatusCode.insert(std::make_pair("301", "Moved Permanently"));
 	MapStatusCode.insert(std::make_pair("302", "Found"));
 	MapStatusCode.insert(std::make_pair("303", "See Other"));
 	MapStatusCode.insert(std::make_pair("304", "Not Modified"));
 	MapStatusCode.insert(std::make_pair("305", "Use Proxy"));
-	//MapStatusCode.insert(std::make_pair("306", "Switch Proxy"));
+	MapStatusCode.insert(std::make_pair("306", "Switch Proxy"));
 	MapStatusCode.insert(std::make_pair("307", "Temporary Redirect"));
 	MapStatusCode.insert(std::make_pair("308", "Permanent Redirect"));
 	MapStatusCode.insert(std::make_pair("400", "Bad Request"));
@@ -95,7 +84,7 @@ void Response::handle(std::string statuscode, std::string pathHTML) {
 	MapStatusCode.insert(std::make_pair("424", "Failed Dependency"));
 	MapStatusCode.insert(std::make_pair("425", "Too Early"));
 	MapStatusCode.insert(std::make_pair("426", "Upgrade Required"));
-	//MapStatusCode.insert(std::make_pair("428", "Precondition Required"));
+	MapStatusCode.insert(std::make_pair("428", "Precondition Required"));
 	MapStatusCode.insert(std::make_pair("429", "Too Many Requests"));
 	MapStatusCode.insert(std::make_pair("431", "Request Header Fields Too Large"));
 	MapStatusCode.insert(std::make_pair("444", "No Response"));
@@ -144,6 +133,87 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	string bodylength;
 	std::ofstream outFile;
 
+   if (code_pag == "0"){
+		/*curl -v -d fileupload1.txt  POST 127.0.0.1:3490/fileupload1.txt*/
+		/*CREATE 1MB TXT
+		yes 1MB_ | awk '{ printf("%s", $0)}' | dd of=root_html/1MB.txt bs=1024 count=1024 2>/dev/null
+		curl -v -d 1MB.txt  POST 127.0.0.1:3490/1MB.txt
+		CREATE 100MB TXT
+		yes 100MB_ | awk '{ printf("%s", $0)}' | dd of=root_html/100MB.txt bs=1024000 count=1024000 2>/dev/null
+		curl -v -d 1M00.txt  POST 127.0.0.1:3490/100M.txt*/
+		addLog(logFile,"POST INIT-----------------------------");
+		addLog(logFile,"Source file: " + pathHTML);
+		FILE* src_file = fopen(pathHTML.c_str(), "rb");
+		if (!src_file) {
+			addLog(logFile,"Failed to open source file");
+			ReadHTML("500", "Internal Server Error", "");
+			return;
+		}
+		addLog(logFile,"Check source...ok");
+		std::string dest_filename = "root_html/file_upload/" + pathHTML.substr(pathHTML.find_last_of("/\\") + 1);
+		addLog(logFile,"Defining destination..." + dest_filename);
+
+
+		FILE* dest_file = fopen(dest_filename.c_str(), "wb");
+		if (!dest_file) {
+			addLog(logFile,"Failed to open destination file");
+			fclose(src_file);
+			ReadHTML("500", "Internal Server Error", "");
+			return;
+		}
+		addLog(logFile,"Check destination...ok");
+
+		addLog(logFile,"Moving...");
+		const int buffer_size = 1024;
+		char buffer[buffer_size];
+		size_t read_count;
+
+		while ((read_count = fread(buffer, 1, buffer_size, src_file)) > 0) {
+			if (fwrite(buffer, 1, read_count, dest_file) != read_count)	{
+				addLog(logFile,"Error writing to destination file");
+				fclose(src_file);
+				fclose(dest_file);
+				ReadHTML("500", "Internal Server Error", "");
+				return;
+			}
+		}
+
+		ReadHTML("204", "No Content", "");
+		fclose(src_file);
+		fclose(dest_file);
+		addLog(logFile,"Transfer ok");
+
+		addLog(logFile,"POST END------------------------------");
+		return;
+   }
+
+   if (code_pag == "-1"){
+
+	   /*curl -v -X DELETE 127.0.0.1:3490/file_upload/1MB.txt OK => insert into tests*/
+	   /*curl -v -X DELETE 127.0.0.1:3490/file_upload/1MB2.txt ERROR expected => insert into tests*/
+
+		addLog(logFile,"DELETE INIT-----------------------------");
+		addLog(logFile,"Source file: " + pathHTML);
+
+		if (access(pathHTML.c_str(), F_OK) == -1) {
+			addLog(logFile,"File doesn't exist!");
+			addLog(logFile,"DELETE END------------------------------");
+			ReadHTML("404", "Not Found", "");
+			return;
+		}
+
+		if (std::remove(pathHTML.c_str()) != 0) {
+			addLog(logFile,"Error deleting file!");
+			addLog(logFile,"DELETE END------------------------------");
+			ReadHTML("500", "Internal Server Error", "");
+			return;
+		}
+
+		addLog(logFile,"File successfully deleted!");
+		addLog(logFile,"DELETE END------------------------------");
+		ReadHTML("204", "No Content", "");
+		return;
+   }
 
    if (isDirectory(pathHTML)){
 	   	line = createhmtl(pathHTML);
@@ -161,97 +231,9 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		send(_client_fd, "Content-Type: text/html\n", 24, 0);
 		send(_client_fd, bodylength.c_str(), bodylength.length(), 0);
 		send(_client_fd, line.c_str(), line.length(), 0);
-		send(_client_fd, "\n", 1, 0);
 		close(_client_fd);
 		return;
    }
-
-
-
-   if (code_pag == "0"){
-		/*curl -v -d fileupload1.txt  POST 127.0.0.1:3490/fileupload1.txt*/
-		/*CREATE 1MB TXT
-		yes 1MB_ | awk '{ printf("%s", $0)}' | dd of=root_html/1MB.txt bs=1024 count=1024 2>/dev/null
-		curl -v -d 1MB.txt  POST 127.0.0.1:3490/1MB.txt
-		CREATE 100MB TXT
-		yes 100MB_ | awk '{ printf("%s", $0)}' | dd of=root_html/100MB.txt bs=1024000 count=1024000 2>/dev/null
-		curl -v -d 1M00.txt  POST 127.0.0.1:3490/100M.txt*/
-		addLog(logFile,"POST INIT-----------------------------");
-		addLog(logFile,"Source file: " + pathHTML);
-		FILE* src_file = fopen(pathHTML.c_str(), "rb");
-		if (!src_file) {
-			addLog(logFile,"Failed to open source file");
-			return;
-		}
-		addLog(logFile,"Check source...ok");
-		std::string dest_filename = "root_html/file_upload/" + pathHTML.substr(pathHTML.find_last_of("/\\") + 1);
-		addLog(logFile,"Defining destination..." + dest_filename);
-		
-		
-		FILE* dest_file = fopen(dest_filename.c_str(), "wb");
-		if (!dest_file) {
-			addLog(logFile,"Failed to open destination file");
-			fclose(src_file);
-			return;
-		}
-		addLog(logFile,"Check destination...ok");
-
-		addLog(logFile,"Moving...");
-		const int buffer_size = 1024;
-		char buffer[buffer_size];
-		size_t read_count;
-
-		while ((read_count = fread(buffer, 1, buffer_size, src_file)) > 0) {
-			if (fwrite(buffer, 1, read_count, dest_file) != read_count)	{
-				addLog(logFile,"Error writing to destination file");
-				fclose(src_file);
-				fclose(dest_file);
-				return;
-			}
-		}
-
-		fclose(src_file);
-		fclose(dest_file);
-		addLog(logFile,"Transfer ok");
-		
-		addLog(logFile,"POST END------------------------------");
-		return;
-   }
-
-
-
-
-
-
-
-   if (code_pag == "-1"){
-
-	   /*curl -v -X DELETE 127.0.0.1:3490/file_upload/1MB.txt OK => insert into tests*/
-	   /*curl -v -X DELETE 127.0.0.1:3490/file_upload/1MB2.txt ERROR expected => insert into tests*/
-
-		addLog(logFile,"DELETE INIT-----------------------------");
-		addLog(logFile,"Source file: " + pathHTML);
-
-		if (access(pathHTML.c_str(), F_OK) == -1) {
-			addLog(logFile,"File doesn't exist!");
-			addLog(logFile,"DELETE END------------------------------");
-			return;
-		}
-
-		if (std::remove(pathHTML.c_str()) != 0) {
-			addLog(logFile,"Error deleting file!");
-			addLog(logFile,"DELETE END------------------------------");
-			return;
-		} 
-		
-		addLog(logFile,"File successfully deleted!");
-		addLog(logFile,"DELETE END------------------------------");
-		return;
-   }
-
-	
-
-
 
 
 	addLog(logFile,"MsgCode " + msgStatusCode);
@@ -270,11 +252,6 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		//std::cout << "The size of the file is: " << 17 + file_status.st_size << " bytes." << std::endl;
 	}
 
-
-
-
-
-	
 	//ifstream file(fullpath.c_str());
 	ifstream file(pathHTML.c_str());
 	if (file.is_open())
@@ -283,7 +260,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		send(_client_fd, (code_pag + " ").c_str(), 4, 0);
 		send(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
 		send(_client_fd, "\n", 1, 0);
-		
+
 		bodylength = "Content-Length: " + std::string(temp) + "\n";
 		send(_client_fd, bodylength.c_str(), bodylength.length(), 0);
 		send(_client_fd, "Content-Type: text/html\n", 24, 0);
