@@ -49,15 +49,15 @@ void Http::handle() {
 		_request.handle();
 	} catch (Request::BadRequestError& e) {
 		addLog(logFile, "BadRequestError Catched");
-		_response.handle("400", "");
+		_response.handle("400", "", false);
 		return ;
 	} catch (Request::URITooLongError& e) {
 		addLog(logFile, "URITooLongError Catched");
-		_response.handle("414", "");
+		_response.handle("414", "", false);
 		return ;
 	} catch (Request::InternalServerError& e) {
 		addLog(logFile, "InternalServerError Catched");
-		_response.handle("500", "");
+		_response.handle("500", "", false);
 		return ;
 	}
 
@@ -117,11 +117,11 @@ void Http::_response_handler() {
 	if (!_request.method().compare("GET"))
 		_get_handler(response_file_path);
 	else if (!_request.method().compare("POST"))
-		_response.handle("0", response_file_path);
+		_response.handle("0", response_file_path, false);
 	else if (!_request.method().compare("DELETE"))
-		_response.handle("-1", response_file_path);
+		_response.handle("-1", response_file_path, false);
 	else
-		_response.handle("500", "");
+		_response.handle("500", "", false);
 }
 
 void Http::_get_handler(std::string response_file_path) {
@@ -140,7 +140,7 @@ void Http::_get_handler(std::string response_file_path) {
 
 	addLog(logFile,"Status Code: " + prevStatusCode);
 	addLog(logFile,"Path: " + prevPath);
-	_response.handle(prevStatusCode, prevPath);
+	_response.handle(prevStatusCode, prevPath, _autoindex());
 }
 
 
@@ -156,7 +156,7 @@ bool Http::_validate_request() {
 		has_error = true;
 
 	if(has_error)
-		_response.handle(prev_status_code, _get_file_error(prev_status_code));
+		_response.handle(prev_status_code, _get_file_error(prev_status_code), false);
 
 	return has_error;
 }

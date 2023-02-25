@@ -80,18 +80,18 @@ string createhmtl(const std::string& Path) {
 
 	// Open the directory using the opendir function
     DIR* dir = opendir(Path.c_str());
-    if (!dir) 
+    if (!dir)
 		return("");
 
     dirent* entry;
     while ((entry = readdir(dir))) {
         if (entry->d_name[0] != '.')  // Exclude hidden files
-			htmlAutoIndex += "<tr><td><a href=\"" + string(entry->d_name) + "\">" + string(entry->d_name) + "</a></td></tr>\n";
+			htmlAutoIndex += "<tr><td><a onclick=\"javascript:window.location.assign(window.location.href + '/" + string(entry->d_name) + "')\" style=\"color: -webkit-link;cursor: pointer;text-decoration: underline;\">" + string(entry->d_name) + "</a></td></tr>\n";
     }
-    
+
 	// Close the directory using the closedir function
     closedir(dir);
-		
+
     // Finish the HTML file
 	htmlAutoIndex += "</table>\n";
 	htmlAutoIndex += "<hr>\n";

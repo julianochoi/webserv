@@ -18,10 +18,10 @@ class Response {
 		Response& operator=(Response const &response);
 		~Response(void);
 
-		void handle(std::string statuscode, std::string pathHTML);
+		void handle(std::string statuscode, std::string pathHTML, bool autoindex);
 		void OK(void);
 		void RESP300(void);
-		void ReadHTML(std::string code_pag, std::string msgStatusCode, std::string pathHTML);
+		void ReadHTML(std::string code_pag, std::string msgStatusCode, std::string pathHTML, bool autoindex);
 };
 
 std::ostream &operator<<(std::ostream &out, const Response &response);
