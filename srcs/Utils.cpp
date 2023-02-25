@@ -171,4 +171,9 @@ namespace Utils {
 		signal(SIGQUIT, handle_signal);
 	}
 
+	string itoa(int n) {
+		stringstream ss;
+  		ss << n;
+		return ss.str();
+	}
 }

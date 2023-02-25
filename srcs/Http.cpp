@@ -72,6 +72,8 @@ void Http::handle() {
 	_set_location();
 	if (_validate_request())
 		return;
+	if (_check_cgi())
+		return;
 	_response_handler();
 }
 
@@ -102,6 +104,45 @@ void Http::_set_location() {
 			_remaining_path = "";
 		}
 	}
+}
+
+bool Http::_has_cgi_extension(std::string filename, std::string cgi_extension)
+{
+	size_t ext_len = cgi_extension.length();
+	size_t file_len = filename.length();
+	std::string file_ext;
+
+	try
+	{
+		file_ext = filename.substr(file_len - ext_len);
+	}
+	catch(const std::out_of_range& e)
+	{
+		return false;
+	}
+	return file_ext == cgi_extension;
+}
+
+bool Http::_check_cgi()
+{
+	std::vector<std::string> tokens;
+	std::string cgi_extension, filename, filepath;
+	CgiHandler cgi_handler;
+
+	cgi_extension = _cgi_extension();
+	if (!cgi_extension.length() || !_remaining_path.length())
+		return false;
+	tokens = Utils::string_split(_remaining_path, "/");
+	if (tokens.size() > 1 && tokens[0] == "cgi-bin")
+		filename = tokens[1];
+	if (_has_cgi_extension(filename, cgi_extension))
+	{
+		filepath = _root() + "/" + tokens[0] + "/" + tokens[1];
+		cgi_handler.build(_http_server, _http_location, _request, filepath);
+		cgi_handler.handle(_client_fd);
+		return true;
+	}
+	return false;
 }
 
 void Http::_response_handler() {
@@ -182,6 +223,23 @@ std::string Http::_root(void) const {
 	else
 		return _http_server.root();
 }
+
+
+std::string Http::_cgi_extension(void) const {
+	if (_has_location)
+		return _http_location.cgi_extension();
+	else
+		return _http_server.cgi_extension();
+}
+
+
+std::string Http::_cgi_path(void) const {
+	if (_has_location)
+		return _http_location.cgi_path();
+	else
+		return _http_server.cgi_path();
+}
+
 
 std::string Http::_index(void) const {
 	if (_has_location)

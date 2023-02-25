@@ -13,7 +13,7 @@ CC				= c++
 CFLAGS			= -g -Wall -Wextra -Werror -std=c++98 -MMD -MP -pedantic
 RM 				= rm -rf
 
-SRC				= main.cpp FileParser.cpp Http.cpp Request.cpp Response.cpp \
+SRC				= main.cpp CgiHandler.cpp FileParser.cpp Http.cpp Request.cpp Response.cpp \
 						Server.cpp ServerLocation.cpp Utils.cpp WebServ.cpp
 
 INCPATH  		= -I./srcs -I./srcs/req -I./srcs/resp -I./srcs/serv
@@ -76,7 +76,7 @@ poetry_uninstall:
 # **************************************************************************** #
 # *----------------------------Virtual Environment---------------------------* #
 # **************************************************************************** #
-VENV_DIR = ./.venv # TODO instead of relative path, set folder equal to makefile location
+VENV_DIR = ./.venv
 venv_install: | poetry_install $(VENV_DIR)
 $(VENV_DIR):
 #	Update and add python support to create virtual environment

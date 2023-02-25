@@ -9,6 +9,7 @@
 #include <Response.hpp>
 #include <Server.hpp>
 #include <ServerLocation.hpp>
+#include <CgiHandler.hpp>
 
 class Http {
 	private:
@@ -25,6 +26,8 @@ class Http {
 
 		void _set_http_server();
 		void _set_location();
+		bool _check_cgi();
+		bool _has_cgi_extension(std::string filename, std::string cgi_extension);
 		void _response_handler();
 		void _get_handler(std::string response_file_path);
 		bool _validate_request();
@@ -32,6 +35,8 @@ class Http {
 
 		std::string								_root(void) const;
 		std::string				_index(void) const;
+		std::string 							_cgi_extension(void) const;
+		std::string 							_cgi_path(void) const;
 		std::map<int, std::string>				_erros_pages(void) const;
 		int										_body_size_limit(void) const;
 		bool									_autoindex(void) const;

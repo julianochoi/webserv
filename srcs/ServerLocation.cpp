@@ -124,6 +124,7 @@ void	ServerLocation::_set_cgi_attribute(std::vector<std::string> line_tokens) {
 		throw InvalidCGIExtension();
 	}
 	this->_cgi_extension = line_tokens[1];
+	this->_cgi_path = "";
 	switch (line_tokens.size()) {
 	case 2:
 		break;
