@@ -49,15 +49,15 @@ void Http::handle() {
 		_request.handle();
 	} catch (Request::BadRequestError& e) {
 		addLog(logFile, "BadRequestError Catched");
-		_response.handle("400", "", false);
+		_response.handle("400", "", false, "");
 		return ;
 	} catch (Request::URITooLongError& e) {
 		addLog(logFile, "URITooLongError Catched");
-		_response.handle("414", "", false);
+		_response.handle("414", "", false, "");
 		return ;
 	} catch (Request::InternalServerError& e) {
 		addLog(logFile, "InternalServerError Catched");
-		_response.handle("500", "", false);
+		_response.handle("500", "", false, "");
 		return ;
 	}
 
@@ -113,15 +113,21 @@ void Http::_response_handler() {
 		response_file_path.append(_root()).append(_remaining_path);
 	addLog(logFile, "Response File Path: " + response_file_path);
 
+	if (_http_redirect().first) {
+		std::stringstream string_status_code_stream;
+		string_status_code_stream << _http_redirect().first;
+		std::string string_status_code;
+		string_status_code_stream >> string_status_code;
 
-	if (!_request.method().compare("GET"))
+		_response.handle(string_status_code, response_file_path, false, _http_redirect().second);
+	} else if (!_request.method().compare("GET"))
 		_get_handler(response_file_path);
 	else if (!_request.method().compare("POST"))
-		_response.handle("0", response_file_path, false);
+		_response.handle("0", response_file_path, false, "");
 	else if (!_request.method().compare("DELETE"))
-		_response.handle("-1", response_file_path, false);
+		_response.handle("-1", response_file_path, false, "");
 	else
-		_response.handle("500", "", false);
+		_response.handle("500", "", false, "");
 }
 
 void Http::_get_handler(std::string response_file_path) {
@@ -140,7 +146,7 @@ void Http::_get_handler(std::string response_file_path) {
 
 	addLog(logFile,"Status Code: " + prevStatusCode);
 	addLog(logFile,"Path: " + prevPath);
-	_response.handle(prevStatusCode, prevPath, _autoindex());
+	_response.handle(prevStatusCode, prevPath, _autoindex(), "");
 }
 
 
@@ -156,7 +162,7 @@ bool Http::_validate_request() {
 		has_error = true;
 
 	if(has_error)
-		_response.handle(prev_status_code, _get_file_error(prev_status_code), false);
+		_response.handle(prev_status_code, _get_file_error(prev_status_code), false, "");
 
 	return has_error;
 }
@@ -216,6 +222,14 @@ std::vector<std::string> Http::_http_methods(void) const {
 	else
 		return _http_server.http_methods();
 }
+
+std::pair<int, std::string> Http::_http_redirect(void) const {
+	if (_has_location)
+		return _http_location.http_redirect();
+	else
+		return _http_server.http_redirect();
+}
+
 
 
 std::ostream &operator<<(std::ostream &out, const Http &http) {

@@ -36,7 +36,7 @@ class Http {
 		int										_body_size_limit(void) const;
 		bool									_autoindex(void) const;
 		std::vector<std::string>				_http_methods(void) const;
-
+		std::pair<int, std::string> _http_redirect(void) const;
 
 	public:
 		Http(void);

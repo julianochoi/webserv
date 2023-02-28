@@ -31,7 +31,7 @@ Response &Response::operator=(Response const &response) {
 
 Response::~Response(void) {}
 
-void Response::handle(std::string statuscode, std::string pathHTML, bool autoindex) {
+void Response::handle(std::string statuscode, std::string pathHTML, bool autoindex, std::string data) {
 	std::map<std::string, std::string> MapStatusCode;
 
 	MapStatusCode.insert(std::make_pair("-1", "Delete"));
@@ -118,12 +118,12 @@ void Response::handle(std::string statuscode, std::string pathHTML, bool autoind
 		statuscode = "404";
 	//addLog(logFile,"StatusCode " + MapStatusCode.find(statuscode)->second);
 
-	ReadHTML(statuscode, MapStatusCode.find(statuscode)->second, pathHTML, autoindex);
+	ReadHTML(statuscode, MapStatusCode.find(statuscode)->second, pathHTML, autoindex, data);
 }
 
 
 
-void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::string pathHTML, bool autoindex) {
+void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::string pathHTML, bool autoindex, std::string data) {
 
 	const char* buffer;
 	int buffer_len;
@@ -146,7 +146,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		FILE* src_file = fopen(pathHTML.c_str(), "rb");
 		if (!src_file) {
 			addLog(logFile,"Failed to open source file");
-			ReadHTML("500", "Internal Server Error", "", false);
+			ReadHTML("500", "Internal Server Error", "", false, data);
 			return;
 		}
 		addLog(logFile,"Check source...ok");
@@ -158,7 +158,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		if (!dest_file) {
 			addLog(logFile,"Failed to open destination file");
 			fclose(src_file);
-			ReadHTML("500", "Internal Server Error", "", false);
+			ReadHTML("500", "Internal Server Error", "", false, data);
 			return;
 		}
 		addLog(logFile,"Check destination...ok");
@@ -173,12 +173,12 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 				addLog(logFile,"Error writing to destination file");
 				fclose(src_file);
 				fclose(dest_file);
-				ReadHTML("500", "Internal Server Error", "", false);
+				ReadHTML("500", "Internal Server Error", "", false, data);
 				return;
 			}
 		}
 
-		ReadHTML("204", "No Content", "", false);
+		ReadHTML("204", "No Content", "", false, data);
 		fclose(src_file);
 		fclose(dest_file);
 		addLog(logFile,"Transfer ok");
@@ -198,27 +198,38 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		if (access(pathHTML.c_str(), F_OK) == -1) {
 			addLog(logFile,"File doesn't exist!");
 			addLog(logFile,"DELETE END------------------------------");
-			ReadHTML("404", "Not Found", "", false);
+			ReadHTML("404", "Not Found", "", false, data);
 			return;
 		}
 
 		if (std::remove(pathHTML.c_str()) != 0) {
 			addLog(logFile,"Error deleting file!");
 			addLog(logFile,"DELETE END------------------------------");
-			ReadHTML("500", "Internal Server Error", "", false);
+			ReadHTML("500", "Internal Server Error", "", false, data);
 			return;
 		}
 
 		addLog(logFile,"File successfully deleted!");
 		addLog(logFile,"DELETE END------------------------------");
-		ReadHTML("204", "No Content", "", false);
+		ReadHTML("204", "No Content", "", false, data);
 		return;
    }
+
+	 if (code_pag[0] == '3') { // is redirect
+		std::string location_info = "Location: " + data + "\n\n";
+
+		send(_client_fd, "HTTP/1.1 ", 9, 0);
+		send(_client_fd, (code_pag + " ").c_str(), 4, 0);
+		send(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
+		send(_client_fd, "\n", 1, 0);
+		send(_client_fd, location_info.c_str(), location_info.length(), 0);
+		return;
+	 }
 
    if (isDirectory(pathHTML)) {
 		if (!autoindex) {
 			addLog(logFile,"Autoindex disabled");
-			ReadHTML("404", "Not Found", "", false);
+			ReadHTML("404", "Not Found", "", false, data);
 			return;
 		};
 
