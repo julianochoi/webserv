@@ -123,6 +123,7 @@ void	ServerLocation::_set_cgi_attribute(std::vector<std::string> line_tokens) {
 
 void	ServerLocation::_set_http_methods_attribute(std::vector<std::string> line_tokens) {
 	// do not need validation - allow any http method name and then only verify it is included
+  this->_http_methods.clear();
 
 	for(long unsigned int j = 1; j < line_tokens.size(); j++)
 		this->_http_methods.push_back(line_tokens[j]);
@@ -157,6 +158,7 @@ void	ServerLocation::_set_autoindex_attribute(std::vector<std::string> line_toke
 
 void	ServerLocation::_set_index_attribute(std::vector<std::string> line_tokens) {
 	// do not need validation - only try to find its location at response
+	this->_index.clear();
 
 	for(long unsigned int j = 1; j < line_tokens.size(); j++)
 		this->_index.push_back(line_tokens[j]);
