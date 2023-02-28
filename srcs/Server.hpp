@@ -23,7 +23,7 @@ class Server {
 		int										_port;
 		std::map<int, std::string>				_erros_pages;
 		std::vector<std::string>				_http_methods;
-		std::pair<int, std::string>				_http_redirect;
+		std::pair<std::string, std::string>				_http_redirect;
 		std::string								_root;
 		int										_body_size_limit;
 		bool									_autoindex;
@@ -62,7 +62,7 @@ class Server {
 		int										port(void) const;
 		std::map<int, std::string>				erros_pages(void) const;
 		std::vector<std::string>				http_methods(void) const;
-		std::pair<int, std::string>				http_redirect(void) const;
+		std::pair<std::string, std::string>				http_redirect(void) const;
 		std::string								root(void) const;
 		int										body_size_limit(void) const;
 		bool									autoindex(void) const;

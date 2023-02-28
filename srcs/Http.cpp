@@ -113,13 +113,8 @@ void Http::_response_handler() {
 		response_file_path.append(_root()).append(_remaining_path);
 	addLog(logFile, "Response File Path: " + response_file_path);
 
-	if (_http_redirect().first) {
-		std::stringstream string_status_code_stream;
-		string_status_code_stream << _http_redirect().first;
-		std::string string_status_code;
-		string_status_code_stream >> string_status_code;
-
-		_response.handle(string_status_code, response_file_path, false, _http_redirect().second);
+	if (_http_redirect().first.length()) {
+		_response.handle(_http_redirect().first, response_file_path, false, _http_redirect().second);
 	} else if (!_request.method().compare("GET"))
 		_get_handler(response_file_path);
 	else if (!_request.method().compare("POST"))
@@ -223,7 +218,7 @@ std::vector<std::string> Http::_http_methods(void) const {
 		return _http_server.http_methods();
 }
 
-std::pair<int, std::string> Http::_http_redirect(void) const {
+std::pair<std::string, std::string> Http::_http_redirect(void) const {
 	if (_has_location)
 		return _http_location.http_redirect();
 	else

@@ -58,7 +58,7 @@ void	ServerLocation::parse_location_attributes(std::ifstream &fs, std::string li
 
 std::map<int, std::string> ServerLocation::erros_pages(void) const { return _erros_pages; }
 std::vector<std::string> ServerLocation::http_methods(void) const { return _http_methods; }
-std::pair<int, std::string> ServerLocation::http_redirect(void) const { return _http_redirect; }
+std::pair<std::string, std::string> ServerLocation::http_redirect(void) const { return _http_redirect; }
 std::string ServerLocation::root(void) const { return _root; }
 int ServerLocation::body_size_limit(void) const { return _body_size_limit; }
 bool ServerLocation::autoindex(void) const { return _autoindex; }
@@ -130,12 +130,12 @@ void	ServerLocation::_set_http_methods_attribute(std::vector<std::string> line_t
 }
 
 void	ServerLocation::_set_http_redirect_attribute(std::vector<std::string> line_tokens) {
-	if (line_tokens.size() != 3 || !Utils::is_number(line_tokens[1].c_str())) {
+	if (line_tokens.size() != 3 || !Utils::is_number(line_tokens[1].c_str()) || line_tokens[1][0] != '3') {
 		std::cerr << "Redirection error - " << line_tokens[1] << std::endl;
 		throw InvalidRedirect();
 	}
 
-	this->_http_redirect = std::make_pair(std::atoi(line_tokens[1].c_str()), line_tokens[2]);
+	this->_http_redirect = std::make_pair(line_tokens[1], line_tokens[2]);
 }
 
 void	ServerLocation::_set_root_attribute(std::vector<std::string> line_tokens) {

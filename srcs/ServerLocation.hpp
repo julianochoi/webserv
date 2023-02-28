@@ -14,7 +14,7 @@ class Server;
 class ServerLocation {
 	private:
 		std::vector<std::string>		_http_methods;
-		std::pair<int, std::string>	_http_redirect;
+		std::pair<std::string, std::string>	_http_redirect;
 		std::string									_root;
 		bool												_autoindex;
 		std::vector<std::string>		_index;
@@ -44,7 +44,7 @@ class ServerLocation {
 
 		std::map<int, std::string>						erros_pages(void) const;
 		std::vector<std::string>							http_methods(void) const;
-		std::pair<int, std::string>						http_redirect(void) const;
+		std::pair<std::string, std::string>						http_redirect(void) const;
 		std::string														root(void) const;
 		int																		body_size_limit(void) const;
 		bool																	autoindex(void) const;
