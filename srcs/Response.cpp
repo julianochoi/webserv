@@ -184,6 +184,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		addLog(logFile,"Transfer ok");
 
 		addLog(logFile,"POST END------------------------------");
+		close(_client_fd);
 		return;
    }
 
@@ -212,6 +213,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		addLog(logFile,"File successfully deleted!");
 		addLog(logFile,"DELETE END------------------------------");
 		ReadHTML("204", "No Content", "", false, data);
+		close(_client_fd);
 		return;
    }
 
@@ -223,6 +225,7 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		send(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
 		send(_client_fd, "\n", 1, 0);
 		send(_client_fd, location_info.c_str(), location_info.length(), 0);
+		close(_client_fd);
 		return;
 	 }
 
