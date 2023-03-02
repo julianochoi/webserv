@@ -29,20 +29,27 @@ void WebServ::init(int argc, char **argv) {
 void WebServ::event_loop(void) {
 	int connections;
 
-	
-	while (true) {
-		/*Looping fica ativo por 15 segundos, para criarmos um timeout*/
-		//if (std::difftime(std::time(0), TS) > 15)
-		//	break;
-		connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), -1);
-		if (connections == -1)
-			throw PoolError();
+	try {
+		addLog(logFile,"Start Polling");
 
-		for (std::vector<pollfd>::const_iterator pollfd = _pollfds.begin(); pollfd != _pollfds.end(); pollfd++)
-			if (pollfd->revents) {
-				Http http = Http(*pollfd, _servers);
-				http.handle();
-			}
+		while (true) {
+			/*Looping fica ativo por 15 segundos, para criarmos um timeout*/
+			//if (std::difftime(std::time(0), TS) > 15)
+			//	break;
+			connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), -1);
+			if (connections == -1)
+				throw PoolError();
+
+			for (std::vector<pollfd>::const_iterator pollfd = _pollfds.begin(); pollfd != _pollfds.end(); pollfd++)
+				if (pollfd->revents & POLLIN) {
+					Http http = Http(*pollfd, _servers);
+					http.handle();
+				}
+		}
+	}
+	catch (...) {
+		addLog(logFile,"Event loop Error");
+		event_loop();
 	}
 }
 
@@ -64,7 +71,7 @@ void WebServ::_start_listening(void) {
 		int yes =1;
 		setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
 		/*colocar um if para proteger com uma msg de erro*/
-		
+
 		if (bind(socket_fd, &bind_host_addrinfo, server->host_addrinfo_len()))
 			throw BindInitError();
 
@@ -74,7 +81,7 @@ void WebServ::_start_listening(void) {
 		struct pollfd				pollfd;
 
 		pollfd.fd = socket_fd;
-		pollfd.events = POLLIN;
+		pollfd.events = POLLIN | POLL_OUT;
 
 		_pollfds.push_back(pollfd);
 
