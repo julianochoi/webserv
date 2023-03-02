@@ -36,6 +36,12 @@ class WebServ {
 				const char* what() const throw(){ return "Socket init error"; };
 		};
 
+		class SocketOptError : public std::exception
+		{
+			public:
+				const char* what() const throw(){ return "Socket opt error"; };
+		};
+
 		class BindInitError : public std::exception
 		{
 			public:

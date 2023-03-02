@@ -69,8 +69,20 @@ void WebServ::_start_listening(void) {
 		sockaddr bind_host_addrinfo = server->host_addrinfo();
 
 		int yes =1;
-		setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes);
-		/*colocar um if para proteger com uma msg de erro*/
+		if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes))
+			throw SocketOptError();
+
+		struct timeval tv_recv;
+		tv_recv.tv_sec = 15;
+		tv_recv.tv_usec = 0;
+		if (setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_recv, sizeof tv_recv))
+			throw SocketOptError();
+
+		struct timeval tv_send;
+		tv_send.tv_sec = 15;
+		tv_send.tv_usec = 0;
+		if (setsockopt(socket_fd, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv_send, sizeof tv_send))
+			throw SocketOptError();
 
 		if (bind(socket_fd, &bind_host_addrinfo, server->host_addrinfo_len()))
 			throw BindInitError();
