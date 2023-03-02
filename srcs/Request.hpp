@@ -44,6 +44,9 @@ class Request {
 		void			_set_query(std::string line);
 		void			_set_protocol_info(std::string line);
 
+		ssize_t		_recv_safe(int __fd, void *__buf, size_t __n, int __flags);
+
+
 	public:
 		Request(void);
 		Request(pollfd const &pollfd, int client_fd);
@@ -74,6 +77,11 @@ class Request {
 	class InternalServerError : public std::exception	{
 		public:
 			const char* what() const throw(){ return "Internal Server Error"; };
+	};
+
+	class RecvError : public std::exception	{
+		public:
+			const char* what() const throw(){ return "Recv Error"; };
 	};
 };
 

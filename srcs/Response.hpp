@@ -11,6 +11,8 @@ class Response {
 		pollfd	_pollfd;
 		int			_client_fd;
 
+		ssize_t		_send_safe(int __fd, const void *__buf, size_t __n, int __flags);
+
 	public:
 		Response(void);
 		Response(pollfd const &pollfd, int client_fd);
@@ -22,6 +24,11 @@ class Response {
 		void OK(void);
 		void RESP300(void);
 		void ReadHTML(std::string code_pag, std::string msgStatusCode, std::string pathHTML, bool autoindex, std::string data);
+
+	class SendError : public std::exception	{
+		public:
+			const char* what() const throw(){ return "Send Error"; };
+	};
 };
 
 std::ostream &operator<<(std::ostream &out, const Response &response);

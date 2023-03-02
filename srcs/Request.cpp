@@ -56,16 +56,16 @@ std::string	Request::_get_line() {
 	int bytes_read;
 	std::string line;
 
-	bytes_read = recv(_client_fd, _buffer, BUFFER_SIZE, 0);
+	bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
 	_total_buffer += *_buffer;
 	if (!_total_buffer.compare("\r")) { //when reaches end of header parse
-		recv(_client_fd, _buffer, BUFFER_SIZE, 0); // gets \r\n string
+		_recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0); // gets \r\n string
 		_total_buffer += *_buffer;
 		_total_buffer.erase(0, 2);
 		return "";
 	}
 	while (bytes_read > 0) {
-		bytes_read = recv(_client_fd, _buffer, BUFFER_SIZE, 0);
+		bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
 		_total_buffer += *_buffer;
 		finder = _total_buffer.find("\n");
 		if (finder != std::string::npos)
@@ -84,10 +84,10 @@ std::string	Request::_get_chunked_size_line() {
 	int bytes_read;
 	std::string line;
 
-	bytes_read = recv(_client_fd, _buffer, BUFFER_SIZE, 0);
+	bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
 	line += *_buffer;
 	while (bytes_read > 0) {
-		bytes_read = recv(_client_fd, _buffer, BUFFER_SIZE, 0);
+		bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
 		line += *_buffer;
 		finder = line.find("\n");
 		if (finder != std::string::npos)
@@ -103,13 +103,13 @@ void	Request::_get_chunked_body_line(std::size_t size) {
 		return ;
 	char *body_buffer = new char[size + 1];
 
-	recv(_client_fd, body_buffer, size, 0);
+	_recv_safe(_client_fd, body_buffer, size, 0);
 	body_buffer[size] = '\0';
 	_body.append(body_buffer);
 
 
-	recv(_client_fd, body_buffer, 1, 0); //read \r line
-	recv(_client_fd, body_buffer, 1, 0); //read \n line
+	_recv_safe(_client_fd, body_buffer, 1, 0); //read \r line
+	_recv_safe(_client_fd, body_buffer, 1, 0); //read \n line
 
 	delete[] body_buffer;
 }
@@ -120,7 +120,7 @@ void	Request::_get_full_body(std::size_t size) {
 
 	char *body_buffer = new char[size + 1];
 
-	recv(_client_fd, body_buffer, size, 0);
+	_recv_safe(_client_fd, body_buffer, size, 0);
 	body_buffer[size] = '\0';
 	_body.append(body_buffer);
 	delete[] body_buffer;
@@ -240,6 +240,16 @@ std::string							Request::path(void) const { return _path; }
 std::string							Request::query(void) const { return _query; }
 std::string							Request::protocol(void) const { return _protocol; }
 std::string							Request::protocol_version(void) const { return _protocol_version; }
+
+ssize_t Request::_recv_safe(int __fd, void *__buf, size_t __n, int __flags) {
+	ssize_t bytes =	recv(__fd, __buf, __n, __flags);
+
+	if (bytes == -1)
+		throw RecvError();
+
+	return bytes;
+}
+
 
 std::ostream &operator<<(std::ostream &out, const Request &request) {
 	out << "Request: " << std::endl;
