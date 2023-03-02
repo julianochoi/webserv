@@ -28,14 +28,14 @@ Http::~Http(void) {}
 void Http::handle() {
 	char temp[100];
 
-	std::cout << "FD " << _pollfd.fd << std::endl;
-	std::cout << _pollfd.revents << std::endl;
+	// std::cout << "FD " << _pollfd.fd << std::endl;
+	// std::cout << _pollfd.revents << std::endl;
 
 	sprintf(temp, "%d", _pollfd.fd);
-	addLog(logFile,"HTTP handle> FD: " + std::string(temp));
+	// addLog(logFile,"HTTP handle> FD: " + std::string(temp));
 
 	sprintf(temp, "%d", _pollfd.revents);
-	addLog(logFile,"HTTP handle> REvents: " + std::string(temp));
+	// addLog(logFile,"HTTP handle> REvents: " + std::string(temp));
 
 	_client_fd = accept(_pollfd.fd, NULL, NULL);
 
@@ -65,15 +65,11 @@ void Http::handle() {
 		return ;
 	}
 
-	addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
+	// addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
 	sprintf(temp, "%d", _client_fd);
-	std::cout << _client_fd << std::endl;
-	std::cout << _request << std::endl;
 	_set_http_server();
-	std::cout << _http_server << std::endl;
+	// std::cout << _http_server << std::endl;
 	_set_location();
-	if (_has_location)
-		std::cout << _http_location << std::endl;
 	if (_validate_request())
 		return;
 	_response_handler();
@@ -115,7 +111,7 @@ void Http::_response_handler() {
 		response_file_path.append(_root()).append("/").append(_index());
 	else
 		response_file_path.append(_root()).append(_remaining_path);
-	addLog(logFile, "Response File Path: " + response_file_path);
+	// addLog(logFile, "Response File Path: " + response_file_path);
 
 	if (_http_redirect().first.length()) {
 		_response_handle_safe(_http_redirect().first, response_file_path, false, _http_redirect().second);
@@ -143,8 +139,8 @@ void Http::_get_handler(std::string response_file_path) {
 		prevPath = _get_file_error(prevStatusCode);
 	}
 
-	addLog(logFile,"Status Code: " + prevStatusCode);
-	addLog(logFile,"Path: " + prevPath);
+	// addLog(logFile,"Status Code: " + prevStatusCode);
+	// addLog(logFile,"Path: " + prevPath);
 	_response_handle_safe(prevStatusCode, prevPath, _autoindex(), "");
 }
 

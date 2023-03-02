@@ -116,7 +116,7 @@ void Response::handle(std::string statuscode, std::string pathHTML, bool autoind
 
 	if (MapStatusCode.find(statuscode) == MapStatusCode.end())
 		statuscode = "404";
-	//addLog(logFile,"StatusCode " + MapStatusCode.find(statuscode)->second);
+	// addLog(logFile,"StatusCode " + MapStatusCode.find(statuscode)->second);
 
 	ReadHTML(statuscode, MapStatusCode.find(statuscode)->second, pathHTML, autoindex, data);
 }
@@ -141,36 +141,36 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		CREATE 100MB TXT
 		yes 100MB_ | awk '{ printf("%s", $0)}' | dd of=root_html/100MB.txt bs=1024000 count=1024000 2>/dev/null
 		curl -v -d 1M00.txt  POST 127.0.0.1:3490/100M.txt*/
-		addLog(logFile,"POST INIT-----------------------------");
-		addLog(logFile,"Source file: " + pathHTML);
+		// addLog(logFile,"POST INIT-----------------------------");
+		// addLog(logFile,"Source file: " + pathHTML);
 		FILE* src_file = fopen(pathHTML.c_str(), "rb");
 		if (!src_file) {
-			addLog(logFile,"Failed to open source file");
+			// addLog(logFile,"Failed to open source file");
 			ReadHTML("500", "Internal Server Error", "", false, data);
 			return;
 		}
-		addLog(logFile,"Check source...ok");
+		// addLog(logFile,"Check source...ok");
 		std::string dest_filename = "root_html/file_upload/" + pathHTML.substr(pathHTML.find_last_of("/\\") + 1);
-		addLog(logFile,"Defining destination..." + dest_filename);
+		// addLog(logFile,"Defining destination..." + dest_filename);
 
 
 		FILE* dest_file = fopen(dest_filename.c_str(), "wb");
 		if (!dest_file) {
-			addLog(logFile,"Failed to open destination file");
+			// addLog(logFile,"Failed to open destination file");
 			fclose(src_file);
 			ReadHTML("500", "Internal Server Error", "", false, data);
 			return;
 		}
-		addLog(logFile,"Check destination...ok");
+		// addLog(logFile,"Check destination...ok");
 
-		addLog(logFile,"Moving...");
+		// addLog(logFile,"Moving...");
 		const int buffer_size = 1024;
 		char buffer[buffer_size];
 		size_t read_count;
 
 		while ((read_count = fread(buffer, 1, buffer_size, src_file)) > 0) {
 			if (fwrite(buffer, 1, read_count, dest_file) != read_count)	{
-				addLog(logFile,"Error writing to destination file");
+				// addLog(logFile,"Error writing to destination file");
 				fclose(src_file);
 				fclose(dest_file);
 				ReadHTML("500", "Internal Server Error", "", false, data);
@@ -181,9 +181,9 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		ReadHTML("204", "No Content", "", false, data);
 		fclose(src_file);
 		fclose(dest_file);
-		addLog(logFile,"Transfer ok");
+		// addLog(logFile,"Transfer ok");
 
-		addLog(logFile,"POST END------------------------------");
+		// addLog(logFile,"POST END------------------------------");
 		close(_client_fd);
 		return;
    }
@@ -193,25 +193,25 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	   /*curl -v -X DELETE 127.0.0.1:3490/file_upload/1MB.txt OK => insert into tests*/
 	   /*curl -v -X DELETE 127.0.0.1:3490/file_upload/1MB2.txt ERROR expected => insert into tests*/
 
-		addLog(logFile,"DELETE INIT-----------------------------");
-		addLog(logFile,"Source file: " + pathHTML);
+		// addLog(logFile,"DELETE INIT-----------------------------");
+		// addLog(logFile,"Source file: " + pathHTML);
 
 		if (access(pathHTML.c_str(), F_OK) == -1) {
-			addLog(logFile,"File doesn't exist!");
-			addLog(logFile,"DELETE END------------------------------");
+			// addLog(logFile,"File doesn't exist!");
+			// addLog(logFile,"DELETE END------------------------------");
 			ReadHTML("404", "Not Found", "", false, data);
 			return;
 		}
 
 		if (std::remove(pathHTML.c_str()) != 0) {
-			addLog(logFile,"Error deleting file!");
-			addLog(logFile,"DELETE END------------------------------");
+			// addLog(logFile,"Error deleting file!");
+			// addLog(logFile,"DELETE END------------------------------");
 			ReadHTML("500", "Internal Server Error", "", false, data);
 			return;
 		}
 
-		addLog(logFile,"File successfully deleted!");
-		addLog(logFile,"DELETE END------------------------------");
+		// addLog(logFile,"File successfully deleted!");
+		// addLog(logFile,"DELETE END------------------------------");
 		ReadHTML("204", "No Content", "", false, data);
 		close(_client_fd);
 		return;
@@ -231,13 +231,13 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 
    if (isDirectory(pathHTML)) {
 		if (!autoindex) {
-			addLog(logFile,"Autoindex disabled");
+			// addLog(logFile,"Autoindex disabled");
 			ReadHTML("404", "Not Found", "", false, data);
 			return;
 		};
 
 		line = createhmtl(pathHTML);
-		addLog(logFile,line);
+		// addLog(logFile,line);
 
 		std::stringstream string_html;
 		string_html << line.length();
@@ -256,18 +256,18 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
    }
 
 
-	addLog(logFile,"MsgCode " + msgStatusCode);
-	addLog(logFile,"Path " + pathHTML);
+	// addLog(logFile,"MsgCode " + msgStatusCode);
+	// addLog(logFile,"Path " + pathHTML);
 
 	if (pathHTML == "")
 		pathHTML = "root_html/default_responses/" + code_pag + string(".html");
 
-	std::cout << code_pag << std::endl;
+	// std::cout << code_pag << std::endl;
 
 
 	if (stat(pathHTML.c_str(), &file_status) == 0){
 		sprintf(temp, "%ld", file_status.st_size);
-		addLog(logFile,"Body bytes: " + std::string(temp));
+		// addLog(logFile,"Body bytes: " + std::string(temp));
 		//std::cout << "The size of the file is: " << file_status.st_size << " bytes." << std::endl;
 		//std::cout << "The size of the file is: " << 17 + file_status.st_size << " bytes." << std::endl;
 	}

@@ -135,11 +135,11 @@ void	Request::_parse_first_line() {
 		throw URITooLongError();
 	tokens = Utils::string_split(line, "\t ");
 	_set_method(tokens[0]);
-	addLog(logFile,"Request first line> Method:" + tokens[0]);
+	// addLog(logFile,"Request first line> Method:" + tokens[0]);
 	_set_path(tokens[1]);
-	addLog(logFile,"Request first line> Path:" + tokens[1]);
+	// addLog(logFile,"Request first line> Path:" + tokens[1]);
 	_set_protocol_info(tokens[2]);
-	addLog(logFile,"Request first line> Protocol:" + tokens[2]);
+	// addLog(logFile,"Request first line> Protocol:" + tokens[2]);
 }
 
 void	Request::_parse_headers() {
