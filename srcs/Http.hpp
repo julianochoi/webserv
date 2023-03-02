@@ -38,6 +38,8 @@ class Http {
 		std::vector<std::string>				_http_methods(void) const;
 		std::pair<std::string, std::string> _http_redirect(void) const;
 
+		void _response_handle_safe(std::string statuscode, std::string pathHTML, bool autoindex, std::string data);
+
 	public:
 		Http(void);
 		Http(Http const &http);
