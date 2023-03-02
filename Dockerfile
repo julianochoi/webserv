@@ -8,7 +8,9 @@ RUN apt update && apt install -y \
                                sudo \
                                curl \
                                python3-venv \
-                               python3-pip
+                               python3-pip \
+                               valgrind \
+                               siege
 
 RUN mkdir /app
 
@@ -23,4 +25,5 @@ RUN python3 -m venv .venv
 RUN /opt/poetry/bin/poetry install
 
 ENTRYPOINT ["make", "run"]
+# ENTRYPOINT ["sleep", "infinity"]
 # RUN /opt/poetry/bin/poetry run pytest -> run at terminal after docker exec -it my-webserv-webserv-1 /bin/sh
