@@ -220,11 +220,11 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	 if (code_pag[0] == '3') { // is redirect
 		std::string location_info = "Location: " + data + "\n\n";
 
-		_send_safe(_client_fd, "HTTP/1.1 ", 9, 0);
-		_send_safe(_client_fd, (code_pag + " ").c_str(), 4, 0);
-		_send_safe(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
-		_send_safe(_client_fd, "\n", 1, 0);
-		_send_safe(_client_fd, location_info.c_str(), location_info.length(), 0);
+		_send_safe(_client_fd, "HTTP/1.1 ", 9, MSG_NOSIGNAL);
+		_send_safe(_client_fd, (code_pag + " ").c_str(), 4, MSG_NOSIGNAL);
+		_send_safe(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), MSG_NOSIGNAL);
+		_send_safe(_client_fd, "\n", 1, MSG_NOSIGNAL);
+		_send_safe(_client_fd, location_info.c_str(), location_info.length(), MSG_NOSIGNAL);
 		close(_client_fd);
 		return;
 	 }
@@ -247,10 +247,10 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 
 		bodylength = "Content-Length: " + std::string(stringHtmlLen) + "\n\n";
 
-		_send_safe(_client_fd, "HTTP/1.1 200 OK\n", 16, 0);
-		_send_safe(_client_fd, "Content-Type: text/html\n", 24, 0);
-		_send_safe(_client_fd, bodylength.c_str(), bodylength.length(), 0);
-		_send_safe(_client_fd, line.c_str(), line.length(), 0);
+		_send_safe(_client_fd, "HTTP/1.1 200 OK\n", 16, MSG_NOSIGNAL);
+		_send_safe(_client_fd, "Content-Type: text/html\n", 24, MSG_NOSIGNAL);
+		_send_safe(_client_fd, bodylength.c_str(), bodylength.length(), MSG_NOSIGNAL);
+		_send_safe(_client_fd, line.c_str(), line.length(), MSG_NOSIGNAL);
 		close(_client_fd);
 		return;
    }
@@ -276,15 +276,15 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 	ifstream file(pathHTML.c_str());
 	if (file.is_open())
 	{
-		_send_safe(_client_fd, "HTTP/1.1 ", 9, 0);
-		_send_safe(_client_fd, (code_pag + " ").c_str(), 4, 0);
-		_send_safe(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), 0);
-		_send_safe(_client_fd, "\n", 1, 0);
+		_send_safe(_client_fd, "HTTP/1.1 ", 9, MSG_NOSIGNAL);
+		_send_safe(_client_fd, (code_pag + " ").c_str(), 4, MSG_NOSIGNAL);
+		_send_safe(_client_fd, msgStatusCode.c_str(), msgStatusCode.length(), MSG_NOSIGNAL);
+		_send_safe(_client_fd, "\n", 1, MSG_NOSIGNAL);
 
 		bodylength = "Content-Length: " + std::string(temp) + "\n";
-		_send_safe(_client_fd, bodylength.c_str(), bodylength.length(), 0);
-		_send_safe(_client_fd, "Content-Type: text/html\n", 24, 0);
-		_send_safe(_client_fd, "\n", 1, 0);
+		_send_safe(_client_fd, bodylength.c_str(), bodylength.length(), MSG_NOSIGNAL);
+		_send_safe(_client_fd, "Content-Type: text/html\n", 24, MSG_NOSIGNAL);
+		_send_safe(_client_fd, "\n", 1, MSG_NOSIGNAL);
 
 		while (getline(file, line))
 		{
@@ -292,8 +292,8 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 			//std::cout << line << " - " << line.length() <<std::endl;
 			buffer=line.c_str();
 			buffer_len=line.length();
-			_send_safe(_client_fd, buffer, buffer_len, 0);
-			_send_safe(_client_fd, "\n", 1, 0);
+			_send_safe(_client_fd, buffer, buffer_len, MSG_NOSIGNAL);
+			_send_safe(_client_fd, "\n", 1, MSG_NOSIGNAL);
 		}
 		file.close();
 	}
