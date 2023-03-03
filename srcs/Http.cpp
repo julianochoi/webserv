@@ -118,7 +118,7 @@ void Http::_response_handler() {
 	} else if (!_request.method().compare("GET"))
 		_get_handler(response_file_path);
 	else if (!_request.method().compare("POST"))
-		_response_handle_safe("0", response_file_path, false, "");
+		_response_handle_safe("0", response_file_path, false, _request.body());
 	else if (!_request.method().compare("DELETE"))
 		_response_handle_safe("-1", response_file_path, false, "");
 	else

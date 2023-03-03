@@ -17,7 +17,7 @@ using namespace std;
 bool isFile(const std::string& path) {
     struct stat path_stat;
     if (stat(path.c_str(), &path_stat) != 0) {
-        std::cerr << "Error: stat failed on " << path << std::endl;
+        // std::cerr << "Error: stat failed on " << path << std::endl;
         return false;
     }
     return S_ISREG(path_stat.st_mode);
@@ -26,7 +26,7 @@ bool isFile(const std::string& path) {
 bool isDirectory(const std::string& path) {
     struct stat path_stat;
     if (stat(path.c_str(), &path_stat) != 0) {
-        std::cerr << "Error: stat failed on " << path << std::endl;
+        // std::cerr << "Error: stat failed on " << path << std::endl;
         return false;
     }
     return S_ISDIR(path_stat.st_mode);

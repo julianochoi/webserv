@@ -1,16 +1,5 @@
 #include <Response.hpp>
-#include <Request.hpp>
-#include <Server.hpp>
-#include <Utils.hpp>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <map>
-#include <sys/stat.h>
 
-#include <dirent.h>
-#include <stdio.h>
-#include <cstdio>
 
 using namespace std;
 
@@ -143,48 +132,54 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 		curl -v -d 1M00.txt  POST 127.0.0.1:3490/100M.txt*/
 		// addLog(logFile,"POST INIT-----------------------------");
 		// addLog(logFile,"Source file: " + pathHTML);
-		FILE* src_file = fopen(pathHTML.c_str(), "rb");
-		if (!src_file) {
-			// addLog(logFile,"Failed to open source file");
-			ReadHTML("500", "Internal Server Error", "", false, data);
-			return;
-		}
-		// addLog(logFile,"Check source...ok");
-		std::string dest_filename = "root_html/file_upload/" + pathHTML.substr(pathHTML.find_last_of("/\\") + 1);
+		// FILE* src_file = fopen(pathHTML.c_str(), "rb");
+		// if (!src_file) {
+		// 	// addLog(logFile,"Failed to open source file");
+		// 	ReadHTML("500", "Internal Server Error", "", false, data);
+		// 	return;
+		// }
+		// // addLog(logFile,"Check source...ok");
+		// std::string dest_filename = "root_html/file_upload/" + pathHTML.substr(pathHTML.find_last_of("/\\") + 1);
 		// addLog(logFile,"Defining destination..." + dest_filename);
 
 
-		FILE* dest_file = fopen(dest_filename.c_str(), "wb");
+		FILE* dest_file = fopen(pathHTML.c_str(), "wb");
 		if (!dest_file) {
 			// addLog(logFile,"Failed to open destination file");
-			fclose(src_file);
-			ReadHTML("500", "Internal Server Error", "", false, data);
+			// fclose(src_file);
+			ReadHTML("500", "Internal Server Error", "", false, "");
 			return;
 		}
 		// addLog(logFile,"Check destination...ok");
 
 		// addLog(logFile,"Moving...");
-		const int buffer_size = 1024;
-		char buffer[buffer_size];
-		size_t read_count;
+		// const int buffer_size = 1024;
+		// char buffer[buffer_size];
+		// size_t read_count;
 
-		while ((read_count = fread(buffer, 1, buffer_size, src_file)) > 0) {
-			if (fwrite(buffer, 1, read_count, dest_file) != read_count)	{
+		// while ((read_count = fread(buffer, 1, buffer_size, src_file)) > 0) {
+		// 	if (fwrite(buffer, 1, read_count, dest_file) != read_count)	{
+		// 		// addLog(logFile,"Error writing to destination file");
+		// 		fclose(src_file);
+		// 		fclose(dest_file);
+		// 		ReadHTML("500", "Internal Server Error", "", false, data);
+		// 		return;
+		// 	}
+		// }
+
+		if (fwrite(data.c_str(), sizeof(char), data.size(), dest_file) != data.length())	{
 				// addLog(logFile,"Error writing to destination file");
-				fclose(src_file);
 				fclose(dest_file);
 				ReadHTML("500", "Internal Server Error", "", false, data);
 				return;
 			}
-		}
 
-		ReadHTML("204", "No Content", "", false, data);
-		fclose(src_file);
+		ReadHTML("204", "No Content", "", false, "");
 		fclose(dest_file);
 		// addLog(logFile,"Transfer ok");
 
 		// addLog(logFile,"POST END------------------------------");
-		close(_client_fd);
+		// close(_client_fd);
 		return;
    }
 

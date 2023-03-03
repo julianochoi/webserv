@@ -5,6 +5,18 @@
 #include <poll.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <Request.hpp>
+#include <Server.hpp>
+#include <Utils.hpp>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <map>
+#include <sys/stat.h>
+
+#include <dirent.h>
+#include <stdio.h>
+#include <cstdio>
 
 class Response {
 	private:
