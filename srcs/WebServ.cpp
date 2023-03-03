@@ -93,7 +93,7 @@ void WebServ::_start_listening(void) {
 		struct pollfd				pollfd;
 
 		pollfd.fd = socket_fd;
-		pollfd.events = POLLIN | POLL_OUT;
+		pollfd.events = POLLIN;
 
 		_pollfds.push_back(pollfd);
 
