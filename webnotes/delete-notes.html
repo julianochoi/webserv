@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Note Form</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f1f1f1;
+      }
+
+      .note-form {
+        width: 80%;
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .note-form h1 {
+        font-size: 32px;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .note-form input[type="text"],
+      .note-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 16px;
+        color: #333;
+        background-color: rgb(230, 224, 224);
+      }
+
+      .note-form textarea {
+        height: 200px;
+        resize: none;
+      }
+
+      .note-form input[type="submit"] {
+        background-color: #d00;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .note-form input[type="submit"]:hover {
+        background-color: #a00;
+      }
+
+      .list-notes {
+        margin: auto;
+        text-align: center;
+      }
+
+      .list-notes button {
+        width: 80%;
+        max-width: 600px;
+        background-color: #555;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .list-notes button:hover {
+        background-color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="note-form">
+      <h1>Delete Note Form</h1>
+      <form id="note-form">
+        <label for="title">Note Title</label>
+        <input type="text" id="title" name="title" />
+
+        <input type="submit" value="Delete Note" />
+      </form>
+    </div>
+    <div class="list-notes">
+      <button onclick="javascript:window.location.assign('/')">Voltar</button>
+    </div>
+  </body>
+  <script>
+      const form = document.getElementById('note-form');
+      const titleInput = document.getElementById('title');
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        // Get the endpoint URL from the user input
+        const endpoint = `/notes/${titleInput.value}`;
+
+        axios.delete(endpoint).then(res => {}).catch(err => console.log(err));
+      });
+    </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</html>

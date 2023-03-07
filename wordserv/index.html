@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>WordServ - Upload Files</title>
+  </head>
+  <body>
+    <h1>WordServ - Upload Files</h1>
+    <form id="upload-form" action="/site/oi" method="POST">
+      <label for="endpoint">File Name:</label>
+      <input type="text" id="endpoint" name="endpoint"><br><br>
+      <label for="file">Select file:</label>
+      <input type="file" id="file" name="file" accept=".html,.css,.txt,.md"><br><br>
+      <input type="submit" value="Upload">
+    </form>
+
+    <script>
+      const form = document.getElementById('upload-form');
+      const endpointInput = document.getElementById('endpoint');
+      const fileInput = document.getElementById('file');
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        // Get the endpoint URL from the user input
+        const endpoint = `/site/${endpointInput.value}`;
+
+        var reader = new FileReader();
+        reader.readAsText(fileInput.files[0], "UTF-8");
+
+        reader.onload = handleFileLoad;
+
+        async function handleFileLoad(event) {
+          await axios.post(endpoint, event.target.result);
+          window.location.assign('/www');
+        }
+      });
+    </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </body>
+</html>
