@@ -43,7 +43,7 @@ class Http {
 	public:
 		Http(void);
 		Http(Http const &http);
-		Http(pollfd const &pollfd, std::vector<Server> servers);
+		Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd);
 		Http& operator=(Http const &http);
 		~Http(void);
 

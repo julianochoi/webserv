@@ -12,7 +12,10 @@ using namespace std;
 
 Http::Http(void) {}
 
-Http::Http(pollfd const &pollfd, std::vector<Server> servers): _pollfd(pollfd), _servers(servers), _has_location(false) {}
+Http::Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd): _pollfd(pollfd), _servers(servers), _has_location(false), _client_fd(client_fd) {
+	_request = Request(_pollfd, _client_fd);
+	_response = Response(_pollfd, _client_fd);
+}
 
 Http::Http(Http const &http) {
 	(void)http;
@@ -37,13 +40,8 @@ void Http::handle() {
 	sprintf(temp, "%d", _pollfd.revents);
 	// addLog(logFile,"HTTP handle> REvents: " + std::string(temp));
 
-	_client_fd = accept(_pollfd.fd, NULL, NULL);
-
 	if (_client_fd == -1)
 		throw ClientConnectionError();
-
-	_request = Request(_pollfd, _client_fd);
-	_response = Response(_pollfd, _client_fd);
 
 	try {
 		_request.handle();

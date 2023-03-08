@@ -28,6 +28,7 @@ void WebServ::init(int argc, char **argv) {
 
 void WebServ::event_loop(void) {
 	int connections;
+	int client_fd;
 
 	try {
 		addLog(logFile,"Start Polling");
@@ -42,7 +43,9 @@ void WebServ::event_loop(void) {
 
 			for (std::vector<pollfd>::const_iterator pollfd = _pollfds.begin(); pollfd != _pollfds.end(); pollfd++)
 				if (pollfd->revents & POLLIN) {
-					Http http = Http(*pollfd, _servers);
+	        client_fd = accept(pollfd->fd, NULL, NULL);
+
+					Http http = Http(*pollfd, _servers, client_fd);
 					http.handle();
 				}
 		}
@@ -64,6 +67,9 @@ void WebServ::_start_listening(void) {
 
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_fd == -1)
+			throw SocketInitError();
+
+		if (fcntl(socket_fd, F_SETFL, O_NONBLOCK) == -1)
 			throw SocketInitError();
 
 		sockaddr bind_host_addrinfo = server->host_addrinfo();

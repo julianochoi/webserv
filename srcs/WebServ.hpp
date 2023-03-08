@@ -4,6 +4,7 @@
 #include <vector>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 #include <iostream>
 #include <FileParser.hpp>
 #include <Server.hpp>
