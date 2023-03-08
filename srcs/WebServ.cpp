@@ -31,6 +31,8 @@ void WebServ::init(int argc, char **argv) {
 void WebServ::event_loop(void) {
 	int connections;
 	int client_fd;
+	int servers_size = _pollfds.size();
+
 
 	try {
 		addLog(logFile,"Start Polling");
@@ -43,11 +45,11 @@ void WebServ::event_loop(void) {
 			if (connections == -1)
 				throw PoolError();
 
-			for (std::vector<pollfd>::const_iterator pollfd = _pollfds.begin(); pollfd != _pollfds.end(); pollfd++)
-				if (pollfd->revents & POLLIN) {
-	        client_fd = accept(pollfd->fd, NULL, NULL);
+			for (int i = 0; i < servers_size; i++)
+				if (_pollfds[i].revents & POLLIN) {
+	        client_fd = accept(_pollfds[i].fd, NULL, NULL);
 
-          _client_list[client_fd] = Http(*pollfd, _servers, client_fd);
+          _client_list[client_fd] = Http(_pollfds[i], _servers, client_fd);
 					_client_list[client_fd].handle();
 				}
 		}
