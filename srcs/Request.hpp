@@ -22,7 +22,7 @@ class Request {
 		std::string							_query;
 		std::string							_protocol;
 		std::string							_protocol_version;
-		char								*_buffer;
+		char								_buffer;
 		int 								_client_fd;
 		std::string							_total_buffer;
 		bool										_headers_error;

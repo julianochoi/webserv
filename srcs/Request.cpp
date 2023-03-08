@@ -3,7 +3,7 @@
 Request::Request(void) {}
 
 Request::Request(pollfd const &pollfd, int client_fd): _pollfd(pollfd), _client_fd(client_fd), _headers_error(false) {
-	_buffer = new char[BUFFER_SIZE];
+	// _buffer = new char[BUFFER_SIZE];
 }
 
 Request::Request(Request const &request) {
@@ -14,7 +14,7 @@ Request::Request(Request const &request) {
 	_query = request.query();
 	_protocol = request.protocol();
 	_protocol_version = request.protocol_version();
-	_buffer = new char[BUFFER_SIZE];
+	_buffer = request._buffer;
 	_pollfd = request._pollfd;
 	_client_fd = request._client_fd;
 	_total_buffer = request._total_buffer;
@@ -29,7 +29,7 @@ Request &Request::operator=(Request const &request) {
 	_query = request.query();
 	_protocol = request.protocol();
 	_protocol_version = request.protocol_version();
-	_buffer = new char[BUFFER_SIZE];
+	_buffer = request._buffer;
 	_pollfd = request._pollfd;
 	_client_fd = request._client_fd;
 	_total_buffer = request._total_buffer;
@@ -38,7 +38,7 @@ Request &Request::operator=(Request const &request) {
 }
 
 Request::~Request(void) {
-	delete[] _buffer;
+	// delete[] _buffer;
 }
 
 void	Request::handle(void) {
@@ -56,17 +56,17 @@ std::string	Request::_get_line() {
 	int bytes_read;
 	std::string line;
 
-	bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
-	_total_buffer += *_buffer;
+	bytes_read = _recv_safe(_client_fd, &_buffer, BUFFER_SIZE, 0);
+	_total_buffer += _buffer;
 	if (!_total_buffer.compare("\r")) { //when reaches end of header parse
-		_recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0); // gets \r\n string
-		_total_buffer += *_buffer;
+		_recv_safe(_client_fd, &_buffer, BUFFER_SIZE, 0); // gets \r\n string
+		_total_buffer += _buffer;
 		_total_buffer.erase(0, 2);
 		return "";
 	}
 	while (bytes_read > 0) {
-		bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
-		_total_buffer += *_buffer;
+		bytes_read = _recv_safe(_client_fd, &_buffer, BUFFER_SIZE, 0);
+		_total_buffer += _buffer;
 		finder = _total_buffer.find("\n");
 		if (finder != std::string::npos)
 			break;
@@ -84,11 +84,11 @@ std::string	Request::_get_chunked_size_line() {
 	int bytes_read;
 	std::string line;
 
-	bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
-	line += *_buffer;
+	bytes_read = _recv_safe(_client_fd, &_buffer, BUFFER_SIZE, 0);
+	line += _buffer;
 	while (bytes_read > 0) {
-		bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
-		line += *_buffer;
+		bytes_read = _recv_safe(_client_fd, &_buffer, BUFFER_SIZE, 0);
+		line += _buffer;
 		finder = line.find("\n");
 		if (finder != std::string::npos)
 			break;

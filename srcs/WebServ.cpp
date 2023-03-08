@@ -13,7 +13,9 @@ WebServ &WebServ::operator=(WebServ const &web_serv) {
 	return *this;
 }
 
-WebServ::~WebServ(void) {}
+WebServ::~WebServ(void) {
+	_client_list.clear();
+}
 
 std::vector<Server> WebServ::servers(void) const { return _servers; }
 
@@ -45,8 +47,8 @@ void WebServ::event_loop(void) {
 				if (pollfd->revents & POLLIN) {
 	        client_fd = accept(pollfd->fd, NULL, NULL);
 
-					Http http = Http(*pollfd, _servers, client_fd);
-					http.handle();
+          _client_list[client_fd] = Http(*pollfd, _servers, client_fd);
+					_client_list[client_fd].handle();
 				}
 		}
 	}

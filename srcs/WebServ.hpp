@@ -17,6 +17,8 @@ class WebServ {
 	private:
 		std::vector<Server>	_servers;
 		std::vector<pollfd> _pollfds;
+		std::map<int, Http> _client_list;
+
 
 		void _start_listening(void);
 

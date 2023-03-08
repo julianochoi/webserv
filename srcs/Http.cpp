@@ -18,11 +18,27 @@ Http::Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd): _p
 }
 
 Http::Http(Http const &http) {
-	(void)http;
+	_pollfd = http._pollfd;
+  _servers = http._servers;
+  _http_server = http._http_server;
+  _http_location = http._http_location;
+  _has_location = http._has_location;
+  _remaining_path = http._remaining_path;
+  _request = http._request;
+  _response = http._response;
+  _client_fd = http._client_fd;
 }
 
 Http &Http::operator=(Http const &http) {
-	(void)http;
+	_pollfd = http._pollfd;
+  _servers = http._servers;
+  _http_server = http._http_server;
+  _http_location = http._http_location;
+  _has_location = http._has_location;
+  _remaining_path = http._remaining_path;
+  _request = http._request;
+  _response = http._response;
+  _client_fd = http._client_fd;
 	return *this;
 }
 
