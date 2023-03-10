@@ -38,7 +38,7 @@ int	main(int argc, char **argv) {
 		addLog(logFile,"Initialize Server Event Loop");
 		web_serv.event_loop();
 	} catch (const std::exception& e) {
-		// TODO add log
+		addLog(logFile, e.what());
 		std::cout << e.what() << std::endl;
 		return(1);
 	}
