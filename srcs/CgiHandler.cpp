@@ -99,8 +99,8 @@ char** CgiHandler::_build_env(Request &request) {
     _env_map["PATH_INFO"] = "";  // The extra path information, as given in the requested URL.
     _env_map["PATH_TRANSLATED"] = "";  // The virtual-to-real mapped version of PATH_INFO.
     // GET Specific
-    if (request.method() == "GET" && request.query() != "")
-        _env_map["QUERY_STRING"] = request.query(); // TODO fix request to receive query
+    if (request.method() == "GET" && request.query().size())
+        _env_map["QUERY_STRING"] = request.query();
     // POST Specific
     if (request.method() == "POST")
     {
