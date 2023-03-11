@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Webserv Presentation</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif;}
+body, html {
+  height: 100%;
+  color: #898686;
+  line-height: 1.8;
+}
+h3 {
+	font-size: 40px;
+	font-weight: bold;
+}
+h4 {
+	font-size: 20px;
+	font-weight: bold;
+}
+h6 {
+	font-size: 20px;
+}
+
+/* Create a Parallax Effect */
+.bgimg-1 {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* First image (Logo. Full height) */
+.bgimg-1 {
+  background-image: url('imgs/server-room.jpg');
+  min-height: 100%;
+}
+
+
+.w3-wide {letter-spacing: 20px;}
+.w3-hover-opacity {cursor: pointer;}
+
+/* Turn off parallax scrolling for tablets and phones */
+@media only screen and (max-device-width: 1600px) {
+  .bgimg-1 {
+    background-attachment: scroll;
+    min-height: 800px;
+  }
+}
+</style>
+</head>
+<body>
+
+
+
+
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+  <div class="w3-bar" id="myNavbar" style="background-color: #ffffff;" >
+    <a class="w3-bar-item w3-button w3-hover-black w3-hide-medium w3-hide-large w3-right" href="javascript:void(0);" onclick="toggleFunction()" title="Toggle Navigation Menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <a href="#home" class="w3-bar-item w3-button">HOME</a>
+    <a href="#About" class="w3-bar-item w3-button w3-hide-small">Sobre o projeto</a>
+    <a href="#Exec" class="w3-bar-item w3-button w3-hide-small">Execução</a>
+    <a href="#Flow" class="w3-bar-item w3-button w3-hide-small">Fluxograma</a>
+	<a href="#Conc" class="w3-bar-item w3-button w3-hide-small">Conceitos</a>
+  </div>
+</div>
+
+
+
+<!-- First Parallax Image with Logo Text -->
+<div class="bgimg-1 w3-display-container w3-opacity-min" id="home">
+  <div class="w3-display-middle" style="white-space:nowrap;">
+    <span class="w3-center w3-padding-large w3-black w3-xlarge w3-wide w3-animate-opacity">WEBSERV<span class="w3-hide-small"> </span>  </span>
+  </div>
+</div>
+
+
+
+
+
+
+
+<!-- Container (About Section) -->
+<div class="w3-content w3-container w3-padding-64" id="About">
+  <h3 class="w3-center">Sobre o projeto</h3>
+  <h6 p>O projeto "webserv" é um projeto em C++ que consiste em implementar um servidor web que possa responder a solicitações HTTP de clientes e fornecer conteúdo estático e dinâmico.</p>
+  <p>O projeto começa com a criação de uma estrutura básica do servidor, implementando as funções para lidar com as conexões TCP e as solicitações HTTP básicas. Em seguida, deverá ser capaz de lidar com solicitações de arquivos estáticos, como HTML, CSS, etc.</p>
+  <p>A parte mais desafiadora do projeto é a implementação de solicitações de arquivos dinâmicos, como scripts CGI (Common Gateway Interface). </p>
+  <p>O grande objetivo é adquir uma compreensão profunda de como os servidores web funcionam e ganhar habilidades em C++ e em programação de redes.</p> </h6>
+  <br></br>
+  <br></br>
+  <br></br>
+  <br></br>
+</div>
+
+
+
+
+<!-- Container (Exec Section) -->
+<div class="w3-content w3-container w3-padding-64" id="Exec">
+	<h3 class="w3-center">Execução</h3>
+	<h6 p>Devido à complexidade do projeto, o mesmo foi dividido basicamente em 4 etapas:</p>
+	<li>Criação das páginas</li>
+	<li>Determinação dos “Requests” e “Parsing”</li>
+	<li>Execução dos “Responses”</li>
+	<li>Testes</li>
+	<p>O grande aprendizado deste projeto foi a forma de desenvolvimento, as coisas só começaram a fluir quando marcamos reuniões diárias para acompanhamento da evolução de todos os integrantes.</p> </h6>
+	<br></br>
+	<br></br>
+	<br></br>
+	<br></br>
+  </div>
+
+
+
+
+
+
+
+
+
+
+<!-- Container (Flow Section) -->
+<div class="w3-content w3-container w3-padding-64" id="Flow">
+  <h3 class="w3-center">Fluxograma</h3>
+  <div class="w3-row w3-padding-32 w3-section">
+    <div class="w3-col m7 w3-container">
+      <img src="Flow.jpg" class="w3-image w3-round" style="width:100%">
+    </div>
+    <div class="w3-col m5 w3-panel">
+      <div class="w3-large w3-margin-bottom">
+		<h4 class="w3-center">Blocos Principais</h4>
+		<hr>
+        <h6 p>1ª Etapa: Início, parsers e looping principal.<br></p>
+		<p>2ª Etapa: Escolha de server e definição das principais variáveis.</p>
+		<p>3ª Controle do fluxo de requisições e respostas de um servidor.</p> </h6>
+      </div>
+      </div>
+  </div>
+  <br></br>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Third Parallax Image with Portfolio Text -->
+<div class="bgimg-3 w3-display-container w3-opacity-min">
+	<div class="w3-display-middle">
+	   <span class="w3-xxlarge w3-text-white w3-wide">Conceitos</span>
+	</div>
+  </div>
+
+<!-- Container (About Section) -->
+<div class="w3-content w3-container w3-padding-64" id="Conc">
+	<h3 class="w3-center">Conceitos</h3>
+    <div class="w3-row w3-center w3-border w3-border-dark-grey">
+      <a href="javascript:void(0)" onclick="openMenu(event, 'Siege');" id="myLink">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">SIEGE</div>
+      </a>
+      <a href="javascript:void(0)" onclick="openMenu(event, 'HttpServer');">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">HTTP SERVER</div>
+      </a>
+      <a href="javascript:void(0)" onclick="openMenu(event, 'IOM');">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">I/O Multiplexing</div>
+      </a>
+	  <a href="javascript:void(0)" onclick="openMenu(event, 'Poll');">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">Poll</div>
+      </a>
+	  <a href="javascript:void(0)" onclick="openMenu(event, 'CS');">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">Cookies e Session</div>
+      </a>
+	  <a href="javascript:void(0)" onclick="openMenu(event, 'CGI');">
+        <div class="w3-col s4 tablink w3-padding-large w3-hover-red">CGI</div>
+      </a>
+    </div>
+
+    <div id="Siege" class="w3-container menu w3-padding-32 w3-white">
+      <p class="w3-text-grey">SIEGE é um programa de teste de estresse de rede de código aberto que permite aos usuários simular tráfego de usuários simultâneos em um servidor web ou aplicação para avaliar sua capacidade de lidar com a carga.</p>
+	  <p class="w3-text-grey">O SIEGE pode ser usado para testar servidores web, aplicativos web, bancos de dados e outros serviços de rede. Ele é capaz de simular centenas ou milhares de usuários simultâneos e fornecer estatísticas detalhadas sobre o desempenho do servidor, incluindo tempos de resposta, taxas de erro, tempo de conexão, etc.</p>
+	  <p class="w3-text-grey">O SIEGE é um software livre e pode ser baixado gratuitamente por qualquer pessoa que queira testar o desempenho de um servidor ou aplicativo web. Ele está disponível para sistemas operacionais Unix-like, incluindo Linux, macOS e FreeBSD.</p>
+      <hr>
+	  <br></br>
+	  <br></br>
+	  <br></br>
+    </div>
+
+	<div id="HttpServer" class="w3-container menu w3-padding-32 w3-white">
+		<p class="w3-text-grey">Um HTTP Server (Servidor HTTP) é um software (ou um componente) que recebe e responde a solicitações HTTP (Protocolo de Transferência de Hipertexto) de clientes. Ele funciona como uma ponte entre o cliente e o servidor, e é responsável por processar as solicitações do cliente, buscar os recursos solicitados e enviar a resposta de volta ao cliente.</p>
+		<p class="w3-text-grey">O funcionamento básico de um HTTP Server é simples: ele aguarda a chegada de solicitações HTTP de um cliente, processa a solicitação e, em seguida, envia a resposta de volta ao cliente. A resposta pode incluir dados, arquivos, imagens, páginas da web, entre outros.</p>
+		<p class="w3-text-grey">Existem muitos servidores HTTP disponíveis no mercado, como o Apache, Nginx, IIS, Lighttpd, entre outros. Esses servidores têm diferentes recursos e capacidades e podem ser configurados de várias maneiras para atender às necessidades específicas de um aplicativo ou site da web.</p>
+		<hr>
+		<br></br>
+		<br></br>
+		<br></br>
+	</div>
+
+	<div id="IOM" class="w3-container menu w3-padding-32 w3-white">
+		<p class="w3-text-grey">I/O Multiplexing é uma técnica de programação que permite que um processo monitore vários descritores de arquivos (como sockets e pipes) ao mesmo tempo em busca de eventos de entrada ou saída. Isso significa que o processo pode lidar com vários fluxos de entrada e saída sem bloquear enquanto espera que cada um seja concluído.</p>
+		<p class="w3-text-grey">A técnica de I/O Multiplexing é comumente usada em aplicativos de rede que precisam lidar com muitas conexões simultâneas, como servidores web, de jogos, de chat e outros aplicativos que precisam responder a várias solicitações ao mesmo tempo.</p>
+		<p class="w3-text-grey">Em vez de usar uma abordagem de programação sequencial, em que um processo espera até que uma solicitação seja concluída antes de passar para a próxima, o I/O Multiplexing usa um modelo de programação baseado em eventos. Quando um evento de entrada ou saída é detectado em um descritor de arquivo, o processo pode ser notificado e realizar a operação necessária de maneira assíncrona, sem precisar esperar que a operação anterior seja concluída.</p>
+		<p class="w3-text-grey">Algumas das interfaces de programação mais comuns usadas para implementar a técnica de I/O Multiplexing incluem o select(), poll() e epoll() no sistema operacional Linux, o kqueue() no macOS e o IOCP (Input/Output Completion Ports) no Windows.</p>
+		<hr>
+		<br></br>
+		<br></br>
+		<br></br>
+	</div>
+
+	<div id="Poll" class="w3-container menu w3-padding-32 w3-white">
+		<p class="w3-text-grey">É uma função de sistema em sistemas operacionais baseados em Unix que permite que um programa monitore múltiplos descritores de arquivo (como sockets e arquivos) para eventos de entrada ou saída. É uma das interfaces de programação mais comuns usadas para implementar a técnica de I/O Multiplexing.</p>
+		<p class="w3-text-grey">A função poll() aceita um array de estruturas de dados chamadas "estruturas de evento" (struct pollfd) que contêm informações sobre os descritores de arquivos a serem monitorados. O programa pode especificar qual tipo de eventos (leitura, escrita, exceção) deseja monitorar para cada descritor de arquivo.</p>
+		<p class="w3-text-grey">Quando um evento de entrada ou saída é detectado em um dos descritores de arquivo monitorados, a função poll() retorna e fornece informações sobre quais descritores de arquivo tiveram eventos de entrada ou saída. Isso permite que o programa tome as ações necessárias em relação a cada evento detectado.</p>
+		<p class="w3-text-grey">Ao contrário do select(), a função poll() não tem limitação no número máximo de descritores de arquivo que pode monitorar. Isso a torna uma escolha popular para aplicativos que precisam lidar com muitas conexões simultâneas.</p>
+		<hr>
+		<br></br>
+		<br></br>
+		<br></br>
+	</div>
+	
+	<div id="CS" class="w3-container menu w3-padding-32 w3-white">
+		<p class="w3-text-grey">Cookies e sessões são mecanismos usados em aplicações web para armazenar informações do usuário e rastrear atividades do usuário em diferentes sessões, são amplamente utilizados para fornecer uma experiência personalizada e melhorar a usabilidade do site. No entanto, é importante que as informações armazenadas em cookies e sessões sejam protegidas para evitar violações de privacidade e segurança.</p>
+		<p class="w3-text-grey">Um cookie é um pequeno arquivo de texto que um servidor envia para o navegador do usuário. O navegador armazena o cookie no computador do usuário e envia-o de volta para o servidor sempre que o usuário solicita uma página. Os cookies geralmente são usados para armazenar informações de login, preferências do usuário e outras informações personalizadas.</p>
+		<p class="w3-text-grey">As sessões, por outro lado, são objetos que permitem que o servidor armazene informações específicas do usuário durante uma sessão de navegação. A sessão é geralmente iniciada quando o usuário faz login no site e termina quando o usuário fecha o navegador ou faz logout. As sessões são frequentemente usadas para manter o estado do usuário e permitir que o servidor rastreie atividades específicas do usuário, como o carrinho de compras em um site de e-commerce.</p>
+		<p class="w3-text-grey">As principais diferenças entre cookies e sessões são:</p>
+		<li class="w3-text-grey">Cookies são armazenados no computador do usuário, enquanto as sessões são armazenadas no servidor.</li>
+		<li class="w3-text-grey">Cookies são geralmente usados para armazenar informações persistentes, enquanto as sessões são usadas para armazenar informações temporárias.</li>
+		<li class="w3-text-grey">Cookies são limitados em tamanho (geralmente cerca de 4 KB), enquanto as sessões podem armazenar informações maiores.</li>
+		<hr>
+		<br></br>
+		<br></br>
+		<br></br>
+	</div>
+
+	<div id="CGI" class="w3-container menu w3-padding-32 w3-white">
+		<p class="w3-text-grey">CGI (sigla para Common Gateway Interface) é um protocolo que permite que programas executáveis em um servidor web gerem conteúdo dinâmico em resposta a uma solicitação de um cliente (geralmente um navegador). O programa CGI é executado no servidor para gerar uma resposta dinâmica, que é então enviada ao cliente pelo servidor web.</p>
+		<p class="w3-text-grey">O protocolo CGI define um conjunto de padrões para a comunicação entre o servidor web e o programa CGI. Quando o cliente solicita um arquivo CGI (geralmente um arquivo com extensão .cgi ou .pl), o servidor web executa o programa CGI e passa informações relevantes (como informações de formulário enviadas pelo cliente) por meio de variáveis de ambiente e/ou parâmetros de linha de comando. O programa CGI pode então processar essas informações e gerar uma resposta personalizada para o cliente, geralmente no formato de uma página HTML.</p>
+		<p class="w3-text-grey">Os programas CGI podem ser escritos em várias linguagens de programação, como Perl, Python, C, C++, Java e outras. No entanto, o uso de CGI tem algumas desvantagens, como a sobrecarga do servidor e a falta de escalabilidade em grandes volumes de tráfego. Por esse motivo, outras tecnologias, como PHP, ASP.NET e Java Servlets/JSPs, foram desenvolvidas para melhorar o desempenho e escalabilidade na geração de conteúdo dinâmico em servidores web.</p>
+		<hr>
+		<br></br>
+		<br></br>
+		<br></br>
+	</div>
+
+	<br></br>
+	<br></br>
+	<br></br>
+	<br></br>
+	<br></br>
+  </div>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+<script>
+// Modal Image Gallery
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+  var captionText = document.getElementById("caption");
+  captionText.innerHTML = element.alt;
+}
+
+// Change style of navbar on scroll
+window.onscroll = function() {myFunction()};
+function myFunction() {
+    var navbar = document.getElementById("myNavbar");
+    if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+        navbar.className = "w3-bar" + " w3-card" + " w3-animate-top" + " w3-white";
+    } else {
+        navbar.className = navbar.className.replace(" w3-card w3-animate-top w3-white", "");
+    }
+}
+
+// Used to toggle the menu on small screens when clicking on the menu button
+function toggleFunction() {
+    var x = document.getElementById("navDemo");
+    if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+    } else {
+        x.className = x.className.replace(" w3-show", "");
+    }
+}
+
+// Tabbed Menu
+function openMenu(evt, menuName) {
+  var i, x, tablinks;
+  x = document.getElementsByClassName("menu");
+  for (i = 0; i < x.length; i++) {
+     x[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < x.length; i++) {
+     tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+  }
+  document.getElementById(menuName).style.display = "block";
+  evt.currentTarget.firstElementChild.className += " w3-red";
+}
+document.getElementById("myLink").click();
+
+</script>
+
+</body>
+</html>
