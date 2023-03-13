@@ -72,8 +72,22 @@ void Http::handle() {
 	_set_location();
 	if (_validate_request())
 		return;
-	if (_check_cgi())
-		return;
+	CgiHandler cgi_handler;
+	try {
+		if (_check_cgi(cgi_handler)) {
+			cgi_handler.handle(_client_fd, _request);
+			return;
+		}
+	}
+	catch(const CgiHandler::UnsupportedCGI& e) {
+		_response_handle_safe("500", "", false, "");
+	}
+	catch(const CgiHandler::CGIError& e) {
+		_response_handle_safe("500", "", false, "");
+	}
+	catch(const CgiHandler::ChdirError& e) {
+		_response_handle_safe("500", "", false, "");
+	}
 	_response_handler();
 }
 
@@ -123,23 +137,26 @@ bool Http::_has_cgi_extension(std::string filename, std::string cgi_extension)
 	return file_ext == cgi_extension;
 }
 
-bool Http::_check_cgi()
+bool Http::_check_cgi(CgiHandler &cgi_handler)
 {
 	std::vector<std::string> tokens;
-	std::string cgi_extension, filename, filepath;
-	CgiHandler cgi_handler;
+	std::string cgi_extension, filename, filepath, full_path;
 
 	cgi_extension = _cgi_extension();
 	if (!cgi_extension.length() || !_remaining_path.length())
 		return false;
+	if (this->_request.method() != "GET" && this->_request.method() != "POST")
+		return false;
 	tokens = Utils::string_split(_remaining_path, "/");
 	if (tokens.size() > 1 && tokens[0] == "cgi-bin")
 		filename = tokens[1];
+	else
+		return false;
 	if (_has_cgi_extension(filename, cgi_extension))
 	{
-		filepath = _root() + "/" + tokens[0] + "/" + tokens[1];
-		cgi_handler.build(_http_server, _http_location, _request, filepath);
-		cgi_handler.handle(_client_fd);
+		filepath = _root() + "/cgi-bin/" + filename;
+		full_path = _root() + _remaining_path;
+		cgi_handler.build(_http_server, _http_location, _request, filepath, full_path);
 		return true;
 	}
 	return false;
@@ -195,7 +212,10 @@ bool Http::_validate_request() {
 	if (_request.headers()["Content-Length"].length() && std::atoi(_request.headers()["Content-Length"].c_str()) > _body_size_limit())
 		has_error = true;
 	else if (allowed_methods.size() && !std::count(allowed_methods.begin(), allowed_methods.end(), _request.method()))
+	{
 		has_error = true;
+		prev_status_code = "405";
+	}
 
 	if(has_error)
 		_response_handle_safe(prev_status_code, _get_file_error(prev_status_code), false, "");

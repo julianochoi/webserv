@@ -26,7 +26,7 @@ class Http {
 
 		void _set_http_server();
 		void _set_location();
-		bool _check_cgi();
+		bool _check_cgi(CgiHandler &cgi_handler);
 		bool _has_cgi_extension(std::string filename, std::string cgi_extension);
 		void _response_handler();
 		void _get_handler(std::string response_file_path);
