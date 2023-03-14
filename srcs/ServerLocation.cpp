@@ -1,7 +1,7 @@
 #include <ServerLocation.hpp>
 
 
-ServerLocation::ServerLocation(void) : _autoindex(false), _cgi_timeout(0) {}
+ServerLocation::ServerLocation(void) : _autoindex(false), _cgi_timeout(0), _body_size_limit(0) {}
 
 ServerLocation::ServerLocation(Server const &server_location) {
 	_http_methods = server_location.http_methods();

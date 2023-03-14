@@ -43,8 +43,6 @@ CgiHandler::~CgiHandler(void){
 }
 
 std::string	CgiHandler::_get_default_cgi(std::string extension) {
-    std::string temp;
-
     if (extension == ".py")
         return "/usr/bin/python3";
     else if (extension == ".php")
@@ -192,11 +190,9 @@ int CgiHandler::_exec_cgi(int tmp_in_fd, int tmp_out_fd) {
     int std_io_fds[2];
     std_io_fds[0] = dup(STDIN_FILENO);
     std_io_fds[1] = dup(STDOUT_FILENO);
-    char buffer[4096];
-    memset(buffer, 0, 4096);
 
-    pid_t intermediate_pid = fork();
-    if (intermediate_pid == 0) {
+    pid_t watcher_pid = fork();
+    if (watcher_pid == 0) {
         pid_t cgi_pid = fork();
         if (cgi_pid == 0) {
             dup2(tmp_in_fd, STDIN_FILENO);
@@ -224,7 +220,7 @@ int CgiHandler::_exec_cgi(int tmp_in_fd, int tmp_out_fd) {
             _exit(WIFSIGNALED(status));
         _exit(0);
     }
-    waitpid(intermediate_pid, &status, 0);
+    waitpid(watcher_pid, &status, 0);
     dup2(STDIN_FILENO, std_io_fds[0]);
     dup2(STDOUT_FILENO, std_io_fds[1]);
     close(std_io_fds[0]);

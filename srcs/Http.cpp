@@ -185,12 +185,15 @@ void Http::_response_handler() {
 
 void Http::_get_handler(std::string response_file_path) {
 	std::string prevStatusCode = "500";
-	std::string prevPath = "";
+	std::string prevPath = response_file_path;
 
-
-	if (Utils::file_exists(response_file_path)) {
+	if (isDirectory(response_file_path) && !_autoindex()) {
 		prevStatusCode = "200";
-		prevPath = response_file_path;
+		prevPath = prevPath + "/" + _index();
+	}
+
+	if (Utils::file_exists(prevPath)) {
+		prevStatusCode = "200";
 	}
 	else {
 		prevStatusCode = "404";

@@ -1,8 +1,7 @@
 #include <Server.hpp>
 
 
-// TODO server/location needs a default body_size_limit to protect against uninitialized. 
-Server::Server(void) : _autoindex(false), _cgi_timeout(0) {}
+Server::Server(void) : _body_size_limit(0), _autoindex(false), _cgi_timeout(0) {}
 
 Server::Server(Server const &server) {
 	_server_names = server.server_names();
