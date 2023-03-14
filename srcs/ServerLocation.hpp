@@ -13,20 +13,22 @@ class Server;
 
 class ServerLocation {
 	private:
-		std::vector<std::string>		_http_methods;
+		std::vector<std::string>			_http_methods;
 		std::pair<std::string, std::string>	_http_redirect;
-		std::string									_root;
-		bool												_autoindex;
-		std::vector<std::string>		_index;
-		std::string									_cgi_extension;
-		std::string									_cgi_path;
-		std::map<int, std::string>	_erros_pages;
-		int													_body_size_limit;
+		std::string							_root;
+		bool								_autoindex;
+		std::vector<std::string>			_index;
+		std::string							_cgi_extension;
+		std::string							_cgi_path;
+		size_t								_cgi_timeout;
+		std::map<int, std::string>			_erros_pages;
+		int									_body_size_limit;
 
 		void	_set_location_attributes(std::vector<std::string>);
 		void	_set_error_page_attribute(std::vector<std::string> line_tokens);
 		void	_set_client_body_size_attribute(std::vector<std::string> line_tokens);
 		void	_set_cgi_attribute(std::vector<std::string> line_tokens);
+		void	_set_cgi_timeout(std::vector<std::string> line_tokens);
 		void	_set_http_methods_attribute(std::vector<std::string> line_tokens);
 		void	_set_http_redirect_attribute(std::vector<std::string> line_tokens);
 		void	_set_root_attribute(std::vector<std::string> line_tokens);
@@ -43,15 +45,16 @@ class ServerLocation {
 
 		void parse_location_attributes(std::ifstream &fs, std::string line);
 
-		std::map<int, std::string>						erros_pages(void) const;
-		std::vector<std::string>							http_methods(void) const;
-		std::pair<std::string, std::string>						http_redirect(void) const;
-		std::string														root(void) const;
-		int																		body_size_limit(void) const;
-		bool																	autoindex(void) const;
-		std::vector<std::string>							index(void) const;
-		std::string														cgi_extension(void) const;
-		std::string														cgi_path(void) const;
+		std::map<int, std::string>			erros_pages(void) const;
+		std::vector<std::string>			http_methods(void) const;
+		std::pair<std::string, std::string>	http_redirect(void) const;
+		std::string							root(void) const;
+		int									body_size_limit(void) const;
+		bool								autoindex(void) const;
+		std::vector<std::string>			index(void) const;
+		std::string							cgi_extension(void) const;
+		std::string							cgi_path(void) const;
+		size_t								cgi_timeout(void) const;
 
 	class InvalidLocationParam : public std::exception
 	{
@@ -93,6 +96,12 @@ class ServerLocation {
 	{
 		public:
 			const char* what() const throw(){ return "Invalid CGI Path"; };
+	};
+
+	class InvalidCGITimeout: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid CGI Timeout"; };
 	};
 
 	class InvalidAutoIndexParam: public std::exception

@@ -11,6 +11,7 @@ ServerLocation::ServerLocation(Server const &server_location) {
 	_index = server_location.index();
 	_cgi_extension = server_location.cgi_extension();
 	_cgi_path = server_location.cgi_path();
+	_cgi_timeout = server_location.cgi_timeout();
 	_erros_pages = server_location.erros_pages();
 	_body_size_limit = server_location.body_size_limit();
 }
@@ -23,6 +24,7 @@ ServerLocation::ServerLocation(ServerLocation const &server_location) {
 	_index = server_location.index();
 	_cgi_extension = server_location.cgi_extension();
 	_cgi_path = server_location.cgi_path();
+	_cgi_timeout = server_location.cgi_timeout();
 	_erros_pages = server_location.erros_pages();
 	_body_size_limit = server_location.body_size_limit();
 }
@@ -36,6 +38,7 @@ ServerLocation &ServerLocation::operator=(ServerLocation const &server_location)
 		_index = server_location.index();
 		_cgi_extension = server_location.cgi_extension();
 		_cgi_path = server_location.cgi_path();
+		_cgi_timeout = server_location.cgi_timeout();
 		_erros_pages = server_location.erros_pages();
 		_body_size_limit = server_location.body_size_limit();
 	}
@@ -68,6 +71,7 @@ bool ServerLocation::autoindex(void) const { return _autoindex; }
 std::vector<std::string> ServerLocation::index(void) const { return _index; }
 std::string ServerLocation::cgi_extension(void) const { return _cgi_extension; }
 std::string ServerLocation::cgi_path(void) const { return _cgi_path; }
+size_t ServerLocation::cgi_timeout(void) const { return _cgi_timeout; }
 
 void	ServerLocation::_set_location_attributes(std::vector<std::string> line_tokens) {
 	if (line_tokens.size() <= 1) {
@@ -83,6 +87,8 @@ void	ServerLocation::_set_location_attributes(std::vector<std::string> line_toke
 		_set_client_body_size_attribute(line_tokens);
 	else if (line_tokens[0] == "cgi")
 		_set_cgi_attribute(line_tokens);
+	else if (line_tokens[0] == "cgi_timeout")
+		_set_cgi_timeout(line_tokens);
 	else if (line_tokens[0] == "allowed_methods")
 		_set_http_methods_attribute(line_tokens);
 	else if (line_tokens[0] == "autoindex")
@@ -151,6 +157,27 @@ void	ServerLocation::_set_cgi_attribute(std::vector<std::string> line_tokens) {
 	}
 }
 
+void	ServerLocation::_set_cgi_timeout(std::vector<std::string> line_tokens) {
+	int time;
+
+	if (line_tokens.size() != 2) {
+		std::cerr << "Cgi Timeout - Too many arguments." << std::endl;
+		throw InvalidCGITimeout();
+	}
+
+	if (!Utils::is_number(line_tokens[1])) {
+		std::cerr << "Cgi Timeout - " << line_tokens[1] << " is not a valid positive integer." << std::endl;
+		throw InvalidCGITimeout();
+	}
+
+	time = std::atoi(line_tokens[1].c_str());
+	if (time <= 0) {
+		std::cerr << "Cgi Timeout - " << line_tokens[1] << " is not a valid positive integer." << std::endl;
+		throw InvalidCGITimeout();
+	}
+	this->_cgi_timeout = time;
+}
+
 void	ServerLocation::_set_http_methods_attribute(std::vector<std::string> line_tokens) {
 	// do not need validation - allow any http method name and then only verify it is included
   this->_http_methods.clear();
@@ -201,6 +228,8 @@ std::ostream &operator<<(std::ostream &out, ServerLocation const &server_locatio
 	out << "  Cgi extension: " << server_location.cgi_extension() << std::endl;
 
 	out << "Cgi path: " << server_location.cgi_path() << std::endl;
+
+	out << "Cgi timeout: " << server_location.cgi_timeout() << std::endl;
 
 	out << "  Root: " << server_location.root() << std::endl;
 

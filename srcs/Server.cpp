@@ -18,6 +18,7 @@ Server::Server(Server const &server) {
 	_locations = server.locations();
 	_cgi_extension = server.cgi_extension();
 	_cgi_path = server.cgi_path();
+	_cgi_timeout = server.cgi_timeout();
 }
 
 Server &Server::operator=(Server const &server) {
@@ -35,6 +36,7 @@ Server &Server::operator=(Server const &server) {
 	_locations = server.locations();
 	_cgi_extension = server.cgi_extension();
 	_cgi_path = server.cgi_path();
+	_cgi_timeout = server.cgi_timeout();
 	return *this;
 }
 
@@ -74,6 +76,7 @@ std::map<std::string, ServerLocation> Server::locations(void) const { return _lo
 ServerLocation Server::location(std::string path) const { return _locations.at(path); }
 std::string Server::cgi_extension(void) const { return _cgi_extension; }
 std::string Server::cgi_path(void) const { return _cgi_path; }
+size_t Server::cgi_timeout(void) const { return _cgi_timeout; }
 
 void	Server::_parse_location_attributes(std::ifstream &fs, std::string line, std::string path) {
 	ServerLocation location(*this);
@@ -99,6 +102,8 @@ void	Server::_set_server_attributes(std::vector<std::string> line_tokens) {
 		_set_client_body_size_attribute(line_tokens);
 	else if (line_tokens[0] == "cgi")
 		_set_cgi_attribute(line_tokens);
+	else if (line_tokens[0] == "cgi_timeout")
+		_set_cgi_timeout(line_tokens);
 	else if (line_tokens[0] == "allowed_methods")
 		_set_http_methods_attribute(line_tokens);
 	else if (line_tokens[0] == "autoindex")
@@ -201,6 +206,27 @@ void	Server::_set_cgi_attribute(std::vector<std::string> line_tokens) {
 	}
 }
 
+void	Server::_set_cgi_timeout(std::vector<std::string> line_tokens) {
+	int time;
+
+	if (line_tokens.size() != 2) {
+		std::cerr << "Cgi Timeout - Too many arguments." << std::endl;
+		throw InvalidCGITimeout();
+	}
+
+	if (!Utils::is_number(line_tokens[1])) {
+		std::cerr << "Cgi Timeout - " << line_tokens[1] << " is not a valid positive integer." << std::endl;
+		throw InvalidCGITimeout();
+	}
+
+	time = std::atoi(line_tokens[1].c_str());
+	if (time <= 0) {
+		std::cerr << "Cgi Timeout - " << line_tokens[1] << " is not a valid positive integer." << std::endl;
+		throw InvalidCGITimeout();
+	}
+	this->_cgi_timeout = time;
+}
+
 void	Server::_set_http_methods_attribute(std::vector<std::string> line_tokens) {
 	// do not need validation - allow any http method name and then only verify it is included
 
@@ -296,6 +322,8 @@ std::ostream &operator<<(std::ostream &out, const Server &server)
 	out << "Cgi extension: " << server.cgi_extension() << std::endl;
 
 	out << "Cgi path: " << server.cgi_path() << std::endl;
+
+	out << "Cgi timeout: " << server.cgi_timeout() << std::endl;
 
 	out << "Root: " << server.root() << std::endl;
 
