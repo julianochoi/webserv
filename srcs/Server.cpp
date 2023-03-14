@@ -1,7 +1,7 @@
 #include <Server.hpp>
 
 
-Server::Server(void) : _autoindex(false) {}
+Server::Server(void) : _body_size_limit(0), _autoindex(false), _cgi_timeout(0) {}
 
 Server::Server(Server const &server) {
 	_server_names = server.server_names();
@@ -17,6 +17,8 @@ Server::Server(Server const &server) {
 	_index = server.index();
 	_locations = server.locations();
 	_cgi_extension = server.cgi_extension();
+	_cgi_path = server.cgi_path();
+	_cgi_timeout = server.cgi_timeout();
 }
 
 Server &Server::operator=(Server const &server) {
@@ -33,6 +35,8 @@ Server &Server::operator=(Server const &server) {
 	_index = server.index();
 	_locations = server.locations();
 	_cgi_extension = server.cgi_extension();
+	_cgi_path = server.cgi_path();
+	_cgi_timeout = server.cgi_timeout();
 	return *this;
 }
 
@@ -71,6 +75,8 @@ std::vector<std::string> Server::index(void) const { return _index; }
 std::map<std::string, ServerLocation> Server::locations(void) const { return _locations; }
 ServerLocation Server::location(std::string path) const { return _locations.at(path); }
 std::string Server::cgi_extension(void) const { return _cgi_extension; }
+std::string Server::cgi_path(void) const { return _cgi_path; }
+size_t Server::cgi_timeout(void) const { return _cgi_timeout; }
 
 void	Server::_parse_location_attributes(std::ifstream &fs, std::string line, std::string path) {
 	ServerLocation location(*this);
@@ -96,6 +102,8 @@ void	Server::_set_server_attributes(std::vector<std::string> line_tokens) {
 		_set_client_body_size_attribute(line_tokens);
 	else if (line_tokens[0] == "cgi")
 		_set_cgi_attribute(line_tokens);
+	else if (line_tokens[0] == "cgi_timeout")
+		_set_cgi_timeout(line_tokens);
 	else if (line_tokens[0] == "allowed_methods")
 		_set_http_methods_attribute(line_tokens);
 	else if (line_tokens[0] == "autoindex")
@@ -165,12 +173,58 @@ void	Server::_set_client_body_size_attribute(std::vector<std::string> line_token
 }
 
 void	Server::_set_cgi_attribute(std::vector<std::string> line_tokens) {
+	std::ifstream file;
+
 	if (line_tokens[1].size() < 2 || line_tokens[1][0] != '.') {
-		std::cerr << "CGI - " << line_tokens[1] << std::endl;
+		addLog(logFile, "CGI - " + line_tokens[1] + " is not a valid extension.");
 		throw InvalidCGIExtension();
 	}
-
 	this->_cgi_extension = line_tokens[1];
+	switch (line_tokens.size()) {
+	case 2:
+		break;
+	case 3:
+		{
+			file.open(line_tokens[2].c_str());
+			if (file) {
+				this->_cgi_path = line_tokens[2];
+				file.close();
+			}
+			else{
+				addLog(logFile, "CGI - " + line_tokens[2] + " is not a valid path.");
+				throw InvalidCGIPath();
+			}
+			break;
+		}
+	default:
+		{
+			std::cerr << "\tCGI - Config: cgi .<cgi_extension> [cgi_path]" << std::endl;
+			std::cerr << "\tExample: cgi .py /usr/bin/python3" << std::endl;
+			throw InvalidNumberOfConfigArgs();
+			break;
+		}
+	}
+}
+
+void	Server::_set_cgi_timeout(std::vector<std::string> line_tokens) {
+	int time;
+
+	if (line_tokens.size() != 2) {
+		std::cerr << "Cgi Timeout - Too many arguments." << std::endl;
+		throw InvalidCGITimeout();
+	}
+
+	if (!Utils::is_number(line_tokens[1])) {
+		std::cerr << "Cgi Timeout - " << line_tokens[1] << " is not a valid positive integer." << std::endl;
+		throw InvalidCGITimeout();
+	}
+
+	time = std::atoi(line_tokens[1].c_str());
+	if (time <= 0) {
+		std::cerr << "Cgi Timeout - " << line_tokens[1] << " is not a valid positive integer." << std::endl;
+		throw InvalidCGITimeout();
+	}
+	this->_cgi_timeout = time;
 }
 
 void	Server::_set_http_methods_attribute(std::vector<std::string> line_tokens) {
@@ -266,6 +320,10 @@ std::ostream &operator<<(std::ostream &out, const Server &server)
 	out << "Client max body size: " << server.body_size_limit() << std::endl;
 
 	out << "Cgi extension: " << server.cgi_extension() << std::endl;
+
+	out << "Cgi path: " << server.cgi_path() << std::endl;
+
+	out << "Cgi timeout: " << server.cgi_timeout() << std::endl;
 
 	out << "Root: " << server.root() << std::endl;
 

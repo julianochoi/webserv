@@ -35,10 +35,10 @@ int	main(int argc, char **argv) {
 		addLog(logFile,"Init HTML");
 		addLog(logFile,"Initialize Server");
 		web_serv.init(argc, argv);
-		//std::cout << web_serv << std::endl;
 		addLog(logFile,"Initialize Server Event Loop");
 		web_serv.event_loop();
 	} catch (const std::exception& e) {
+		addLog(logFile, e.what());
 		std::cout << e.what() << std::endl;
 		return(1);
 	}

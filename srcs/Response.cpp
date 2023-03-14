@@ -283,8 +283,6 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 
 		while (getline(file, line))
 		{
-			//std::cout << "line" << std::endl;
-			//std::cout << line << " - " << line.length() <<std::endl;
 			buffer=line.c_str();
 			buffer_len=line.length();
 			_send_safe(_client_fd, buffer, buffer_len, MSG_NOSIGNAL);
