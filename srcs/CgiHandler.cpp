@@ -1,6 +1,8 @@
 #include "CgiHandler.hpp"
 
-CgiHandler::CgiHandler() : _env(NULL), _argv(NULL) {}
+CgiHandler::CgiHandler() : _env(NULL), _argv(NULL), _timeout(0) {}
+
+CgiHandler::CgiHandler(size_t timeout) : _env(NULL), _argv(NULL), _timeout(timeout) {}
 
 CgiHandler::CgiHandler(CgiHandler const &cgi_handler) {
     this->_env_map = cgi_handler._env_map;
@@ -146,6 +148,8 @@ void CgiHandler::build(Server server, ServerLocation location, Request request, 
     this->_cgi = _get_cgi(server, location);
     this->_argv = _build_argv();
     this->_env = _build_env(server, request);
+    if (!this->_timeout)
+        this->_timeout = CGI_TIMEOUT;
 }
 
 std::string	CgiHandler::_get_cgi_output(std::FILE *tmp_out_file) {
@@ -205,7 +209,7 @@ int CgiHandler::_exec_cgi(int tmp_in_fd, int tmp_out_fd) {
 
         pid_t timer_pid = fork();
         if (timer_pid == 0) {
-            sleep(3); // TODO setup this as a per-server timeout
+            sleep(this->_timeout);
             _exit(0);
         }
 

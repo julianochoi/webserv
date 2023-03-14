@@ -72,7 +72,7 @@ void Http::handle() {
 	_set_location();
 	if (_validate_request())
 		return;
-	CgiHandler cgi_handler;
+	CgiHandler cgi_handler(this->_cgi_timeout());
 	try {
 		if (_check_cgi(cgi_handler)) {
 			cgi_handler.handle(_client_fd, _request);
@@ -260,6 +260,13 @@ std::string Http::_cgi_path(void) const {
 		return _http_server.cgi_path();
 }
 
+
+size_t Http::_cgi_timeout(void) const {
+	if (_has_location)
+		return _http_location.cgi_timeout();
+	else
+		return _http_server.cgi_timeout();
+}
 
 std::string Http::_index(void) const {
 	if (_has_location)

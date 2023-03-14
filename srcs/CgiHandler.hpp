@@ -16,17 +16,20 @@
 #include "Response.hpp"
 #include "Utils.hpp"
 
+#define CGI_TIMEOUT 15;
+
 typedef std::pair<std::string, std::string> cgi_pair;
 typedef std::map<std::string, std::string> env_map;
 
 class CgiHandler {
 	private:
-		env_map			_env_map;
+		env_map		_env_map;
 		std::string	_filepath;
 		std::string _full_path;
 		char**		_env;
 		char**		_argv;
 		cgi_pair	_cgi;
+		size_t		_timeout;
 
 		cgi_pair	_get_cgi(Server &server, ServerLocation &location);
 		std::string	_get_default_cgi(std::string extension);
@@ -40,6 +43,7 @@ class CgiHandler {
 
 	public:
 		CgiHandler(void);
+		CgiHandler(size_t timeout);
 		CgiHandler(CgiHandler const&cgi_handler);
 		CgiHandler& operator=(CgiHandler const&cgi_handler);
 		~CgiHandler(void);
