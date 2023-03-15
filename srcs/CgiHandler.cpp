@@ -216,7 +216,7 @@ int CgiHandler::_exec_cgi(int tmp_in_fd, int tmp_out_fd) {
             kill(cgi_pid, SIGKILL);
 
         wait(&status);
-        if (WIFSIGNALED(status))
+        if (WIFSIGNALED(status) && exited_pid == timer_pid)
             _exit(WIFSIGNALED(status));
         _exit(0);
     }
@@ -249,7 +249,7 @@ void CgiHandler::handle(int client_fd, Request &request) {
 
     _chdir_wrapper(_pwd);
     free(_pwd);
-    if (WIFEXITED(status))
+    if (status)
         throw CGIError();
 
     buffer = _get_cgi_output(tmp_out_file);

@@ -81,12 +81,15 @@ void Http::handle() {
 	}
 	catch(const CgiHandler::UnsupportedCGI& e) {
 		_response_handle_safe("500", "", false, "");
+		return;
 	}
 	catch(const CgiHandler::CGIError& e) {
 		_response_handle_safe("500", "", false, "");
+		return;
 	}
 	catch(const CgiHandler::ChdirError& e) {
 		_response_handle_safe("500", "", false, "");
+		return;
 	}
 	_response_handler();
 }
