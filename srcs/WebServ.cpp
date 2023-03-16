@@ -67,10 +67,19 @@ void WebServ::event_loop(void) {
 				for (size_t i = _pollfds.size() - 1; i >= servers_size; i--) {
 					if (_pollfds[i].fd > 0 && (_pollfds[i].revents & POLLIN || _pollfds[i].revents & POLLOUT))
 					{
-							_client_list[_pollfds[i].fd].handle();
-							if (_client_list[_pollfds[i].fd].is_complete())
+
+							if (_pollfds[i].revents & POLLIN)
+								_client_list[_pollfds[i].fd].handle();
+							else if (_pollfds[i].revents & POLLOUT)
+								_client_list[_pollfds[i].fd].send_safe();
+
+							if (_client_list[_pollfds[i].fd].is_complete() == 1)
+								_pollfds[i].events = POLLOUT;
+							else if (_client_list[_pollfds[i].fd].is_complete() == 2)
 								_pollfds[i].fd = -1;
+
 					} else if (_pollfds[i].revents & POLLERR || _pollfds[i].revents & POLLRDHUP || _pollfds[i].revents & POLLNVAL || _pollfds[i].revents & POLLHUP) {
+						close(_pollfds[i].fd);
 						_pollfds.erase(_pollfds.begin() + i);
 					}
 

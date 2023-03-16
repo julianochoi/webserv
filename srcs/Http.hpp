@@ -49,6 +49,7 @@ class Http {
 		~Http(void);
 
 		void handle();
+		void send_safe();
 		int is_complete();
 
 	class ClientConnectionError : public std::exception	{

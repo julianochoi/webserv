@@ -94,7 +94,6 @@ void Http::handle() {
 	if (_validate_request())
 		return;
 	_response_handler();
-	_is_complete = 1;
 }
 
 void Http::_set_http_server() {
@@ -250,6 +249,7 @@ std::pair<std::string, std::string> Http::_http_redirect(void) const {
 void Http::_response_handle_safe(std::string statuscode, std::string pathHTML, bool autoindex, std::string data) {
 	try {
 		_response.handle(statuscode, pathHTML, autoindex, data);
+		_is_complete = 1;
 	} catch (...) {
 		addLog(logFile, "Response error Catched");
 		close(_client_fd);
@@ -258,6 +258,12 @@ void Http::_response_handle_safe(std::string statuscode, std::string pathHTML, b
 
 int Http::is_complete(void) {
 	return _is_complete;
+}
+
+void Http::send_safe() {
+	_response.send_safe();
+	close(_client_fd);
+	_is_complete = 2;
 }
 
 
