@@ -174,8 +174,8 @@ void Response::ReadHTML(std::string code_pag, std::string msgStatusCode, std::st
 				return;
 			}
 
-		ReadHTML("204", "No Content", "", false, "");
 		fclose(dest_file);
+		ReadHTML("204", "No Content", "", false, "");
 		// addLog(logFile,"Transfer ok");
 
 		// addLog(logFile,"POST END------------------------------");
