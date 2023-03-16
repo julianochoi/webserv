@@ -12,7 +12,7 @@ using namespace std;
 
 Http::Http(void) {}
 
-Http::Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd): _pollfd(pollfd), _servers(servers), _has_location(false), _client_fd(client_fd) {
+Http::Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd): _pollfd(pollfd), _servers(servers), _has_location(false), _client_fd(client_fd), _is_complete(0) {
 	_request = Request(_pollfd, _client_fd);
 	_response = Response(_pollfd, _client_fd);
 }
@@ -27,9 +27,11 @@ Http::Http(Http const &http) {
   _request = http._request;
   _response = http._response;
   _client_fd = http._client_fd;
+  _is_complete = http._is_complete;
 }
 
 Http &Http::operator=(Http const &http) {
+	if (this != &http) {
 	_pollfd = http._pollfd;
   _servers = http._servers;
   _http_server = http._http_server;
@@ -39,6 +41,8 @@ Http &Http::operator=(Http const &http) {
   _request = http._request;
   _response = http._response;
   _client_fd = http._client_fd;
+  _is_complete = http._is_complete;
+	}
 	return *this;
 }
 
@@ -60,7 +64,10 @@ void Http::handle() {
 		throw ClientConnectionError();
 
 	try {
-		_request.handle();
+		if (!_request.is_complete())
+			_request.handle();
+		if (!_request.is_complete())
+			return;
 	} catch (Request::BadRequestError& e) {
 		addLog(logFile, "BadRequestError Catched");
 		_response_handle_safe("400", "", false, "");
@@ -87,6 +94,7 @@ void Http::handle() {
 	if (_validate_request())
 		return;
 	_response_handler();
+	_is_complete = 1;
 }
 
 void Http::_set_http_server() {
@@ -246,6 +254,10 @@ void Http::_response_handle_safe(std::string statuscode, std::string pathHTML, b
 		addLog(logFile, "Response error Catched");
 		close(_client_fd);
 	}
+}
+
+int Http::is_complete(void) {
+	return _is_complete;
 }
 
 

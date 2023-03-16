@@ -31,7 +31,7 @@ void WebServ::init(int argc, char **argv) {
 void WebServ::event_loop(void) {
 	int connections;
 	int client_fd;
-	int servers_size = _pollfds.size();
+	size_t servers_size = _pollfds.size();
 
 
 	try {
@@ -45,12 +45,39 @@ void WebServ::event_loop(void) {
 			if (connections == -1)
 				throw PoolError();
 
-			for (int i = 0; i < servers_size; i++)
+			for (size_t i = 0; i < servers_size; i++){
 				if (_pollfds[i].revents & POLLIN) {
 	        client_fd = accept(_pollfds[i].fd, NULL, NULL);
 
-          _client_list[client_fd] = Http(_pollfds[i], _servers, client_fd);
-					_client_list[client_fd].handle();
+					if (client_fd > 0) {
+						_client_list[client_fd] = Http(_pollfds[i], _servers, client_fd);
+
+						struct pollfd client_pollfd;
+						client_pollfd.fd = client_fd;
+						client_pollfd.events = POLLIN;
+						client_pollfd.revents = 0;
+
+						_pollfds.push_back(client_pollfd);
+					}
+
+				}
+			}
+
+
+				for (size_t i = _pollfds.size() - 1; i >= servers_size; i--) {
+					if (_pollfds[i].fd > 0 && (_pollfds[i].revents & POLLIN || _pollfds[i].revents & POLLOUT))
+					{
+							_client_list[_pollfds[i].fd].handle();
+							if (_client_list[_pollfds[i].fd].is_complete())
+								_pollfds[i].fd = -1;
+					} else if (_pollfds[i].revents & POLLERR || _pollfds[i].revents & POLLRDHUP || _pollfds[i].revents & POLLNVAL || _pollfds[i].revents & POLLHUP) {
+						_pollfds.erase(_pollfds.begin() + i);
+					}
+
+					if (_pollfds[i].fd <= 0)
+					{
+						_pollfds.erase(_pollfds.begin() + i);
+					}
 				}
 		}
 	}

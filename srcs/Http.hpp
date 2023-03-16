@@ -21,6 +21,7 @@ class Http {
 		Request					_request;
 		Response				_response;
 		int 						_client_fd;
+		int 						_is_complete;
 
 
 		void _set_http_server();
@@ -48,6 +49,7 @@ class Http {
 		~Http(void);
 
 		void handle();
+		int is_complete();
 
 	class ClientConnectionError : public std::exception	{
 		public:
