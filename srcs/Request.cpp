@@ -61,8 +61,11 @@ void	Request::handle(void) {
 		_parse_headers();
 		if (_parse_steps != 1 && _headers["Transfer-Encoding"].compare("chunked") && !_headers["Content-Length"].length()) // This is to check if have body
 			_parse_steps = 3;
-		else
+		else {
+			if (_parse_steps != 1 && _headers["Content-Length"].length())
+				_validate_content_length();
 			return ;
+		}
 	}
 
 	if (_parse_steps == 2) {
@@ -187,12 +190,8 @@ void	Request::_parse_headers() {
 }
 
 void	Request::_parse_full_body() {
-	if (!Utils::is_number(_headers["Content-Length"].c_str()))
-		throw BadRequestError();
+	int size = _validate_content_length();
 
-	int size = std::atoi(_headers["Content-Length"].c_str());
-	if (size < 0)
-		throw BadRequestError();
 	_get_full_body(size);
 }
 
@@ -229,6 +228,17 @@ void	Request::_parse_chunked_body() {
 		_headers["Content-Length"] = chunk_total_size_string;
 		_parse_steps = 3;
 	}
+}
+
+int	Request::_validate_content_length() {
+	if (!Utils::is_number(_headers["Content-Length"].c_str()))
+		throw BadRequestError();
+
+	int size = std::atoi(_headers["Content-Length"].c_str());
+	if (size < 0)
+		throw BadRequestError();
+
+	return size;
 }
 
 void	Request::_set_headers(std::string line) {

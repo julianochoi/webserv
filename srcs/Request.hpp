@@ -43,6 +43,7 @@ class Request {
 		void			_parse_headers();
 		void			_parse_chunked_body();
 		void			_parse_full_body();
+		int			_validate_content_length();
 
 		void			_set_headers(std::string line);
 		void			_set_body(std::string line);

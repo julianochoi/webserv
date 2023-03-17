@@ -63,6 +63,8 @@ void Http::handle() {
 	if (_client_fd == -1)
 		throw ClientConnectionError();
 
+	// std::cout << _request << std::endl;
+
 	try {
 		if (!_request.is_complete())
 			_request.handle();
@@ -85,6 +87,9 @@ void Http::handle() {
 		_response_handle_safe("500", "", false, "");
 		return ;
 	}
+
+	// std::cout << _request << std::endl;
+
 
 	// addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
 	sprintf(temp, "%d", _client_fd);
