@@ -22,6 +22,7 @@ class Http {
 		Request					_request;
 		Response				_response;
 		int 						_client_fd;
+		int 						_is_complete;
 
 
 		void _set_http_server();
@@ -49,11 +50,13 @@ class Http {
 	public:
 		Http(void);
 		Http(Http const &http);
-		Http(pollfd const &pollfd, std::vector<Server> servers);
+		Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd);
 		Http& operator=(Http const &http);
 		~Http(void);
 
 		void handle();
+		void send_safe();
+		int is_complete();
 
 	class ClientConnectionError : public std::exception	{
 		public:

@@ -2,8 +2,8 @@
 
 Request::Request(void) {}
 
-Request::Request(pollfd const &pollfd, int client_fd): _pollfd(pollfd), _client_fd(client_fd), _headers_error(false) {
-	_buffer = new char[BUFFER_SIZE];
+Request::Request(pollfd const &pollfd, int client_fd): _pollfd(pollfd), _client_fd(client_fd), _headers_error(false), _is_complete(0), _parse_steps(0), _chunk_parse(0), _chunk_total_size(0) {
+	// _buffer = new char[BUFFER_SIZE];
 }
 
 Request::Request(Request const &request) {
@@ -15,11 +15,16 @@ Request::Request(Request const &request) {
 	_query_map = request.query_map();
 	_protocol = request.protocol();
 	_protocol_version = request.protocol_version();
-	_buffer = new char[BUFFER_SIZE];
+	_buffer = request._buffer;
 	_pollfd = request._pollfd;
 	_client_fd = request._client_fd;
 	_total_buffer = request._total_buffer;
 	_headers_error = request._headers_error;
+	_is_complete = request._is_complete;
+	_parse_steps = request._parse_steps;
+	_chunk_parse = request._chunk_parse;
+	_chunk_total_size = request._chunk_total_size;
+	_chunk_size = request._chunk_size;
 }
 
 Request &Request::operator=(Request const &request) {
@@ -31,94 +36,109 @@ Request &Request::operator=(Request const &request) {
 	_query_map = request.query_map();
 	_protocol = request.protocol();
 	_protocol_version = request.protocol_version();
-	_buffer = new char[BUFFER_SIZE];
+	_buffer = request._buffer;
 	_pollfd = request._pollfd;
 	_client_fd = request._client_fd;
 	_total_buffer = request._total_buffer;
 	_headers_error = request._headers_error;
+	_is_complete = request._is_complete;
+	_parse_steps = request._parse_steps;
+	_chunk_parse = request._chunk_parse;
+	_chunk_total_size = request._chunk_total_size;
+	_chunk_size = request._chunk_size;
 	return *this;
 }
 
 Request::~Request(void) {
-	delete[] _buffer;
+	// delete[] _buffer;
 }
 
 void	Request::handle(void) {
-	_parse_first_line();
-	if (!_total_buffer.compare("\n"))
+	if (_parse_steps == 0) {
+		_parse_first_line();
+		return ;
+	}
+
+	if (_parse_steps == 1) {
 		_parse_headers();
-	if (!_headers["Transfer-Encoding"].compare("chunked"))
-		_parse_chunked_body();
-	else if (_headers["Content-Length"].c_str())
-		_parse_full_body();
+		if (_parse_steps != 1 && _headers["Transfer-Encoding"].compare("chunked") && !_headers["Content-Length"].length()) // This is to check if have body
+			_parse_steps = 3;
+		else {
+			if (_parse_steps != 1 && _headers["Content-Length"].length())
+				_validate_content_length();
+			return ;
+		}
+	}
+
+	if (_parse_steps == 2) {
+		if (!_headers["Transfer-Encoding"].compare("chunked"))
+			_parse_chunked_body();
+		else if (_headers["Content-Length"].c_str())
+			_parse_full_body();
+		else
+			_parse_steps = 3;
+		if (_parse_steps == 2)
+			return ;
+	}
+
+	_is_complete = 1;
 }
 
 std::string	Request::_get_line() {
 	std::size_t finder;
-	int bytes_read;
 	std::string line;
 
-	bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
-	_total_buffer += *_buffer;
-	if (!_total_buffer.compare("\r")) { //when reaches end of header parse
-		_recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0); // gets \r\n string
-		_total_buffer += *_buffer;
-		_total_buffer.erase(0, 2);
-		return "";
-	}
-	while (bytes_read > 0) {
-		bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
-		_total_buffer += *_buffer;
-		finder = _total_buffer.find("\n");
-		if (finder != std::string::npos)
-			break;
-	}
+	_line_found = 0;
+	_recv_safe(_client_fd, &_buffer, BUFFER_SIZE, 0);
+	_total_buffer += _buffer;
 
-	//addLog(logFile,"Request Total buffer:" + _total_buffer);
+	finder = _total_buffer.find("\n");
+	if (finder != std::string::npos)
+		_line_found = 1;
+	else
+		return "";
+
 	line = _total_buffer;
 	line.erase(finder);
 	_total_buffer.erase(0, finder);
 	return line;
 }
 
+
 std::string	Request::_get_chunked_size_line() {
 	std::size_t finder;
-	int bytes_read;
-	std::string line;
 
-	bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
-	line += *_buffer;
-	while (bytes_read > 0) {
-		bytes_read = _recv_safe(_client_fd, _buffer, BUFFER_SIZE, 0);
-		line += *_buffer;
-		finder = line.find("\n");
-		if (finder != std::string::npos)
-			break;
-	}
+	_line_found = 0;
 
-	return line;
+	_recv_safe(_client_fd, &_buffer, BUFFER_SIZE, 0);
+	_total_buffer += _buffer;
+
+	finder = _total_buffer.find("\n");
+	if (finder != std::string::npos)
+		_line_found = 1;
+	else
+		return "";
+
+	return _total_buffer;
 }
-
 
 void	Request::_get_chunked_body_line(std::size_t size) {
 	if (size == 0)
 		return ;
-	char *body_buffer = new char[size + 1];
+	char *body_buffer = new char[size + 2]; // 2 for \r\n
 
-	_recv_safe(_client_fd, body_buffer, size, 0);
-	body_buffer[size] = '\0';
+	_recv_safe(_client_fd, body_buffer, size + 2, 0);
+	body_buffer[size + 1] = '\0'; // to cut \r\n
 	_body.append(body_buffer);
-
-
-	_recv_safe(_client_fd, body_buffer, 1, 0); //read \r line
-	_recv_safe(_client_fd, body_buffer, 1, 0); //read \n line
 
 	delete[] body_buffer;
 }
 
 void	Request::_get_full_body(std::size_t size) {
-	if (size == 0)
+	if (size == 0) {
+		_parse_steps = 3;
 		return ;
+	}
 
 	char *body_buffer = new char[size + 1];
 
@@ -126,6 +146,7 @@ void	Request::_get_full_body(std::size_t size) {
 	body_buffer[size] = '\0';
 	_body.append(body_buffer);
 	delete[] body_buffer;
+	_parse_steps = 3;
 }
 
 void	Request::_parse_first_line() {
@@ -134,6 +155,9 @@ void	Request::_parse_first_line() {
 	size_t question_pos;
 
 	line = _get_line();
+	if (!_line_found)
+		return;
+
 	if (line.length() > MAX_URI_LENGTH)
 		throw URITooLongError();
 	tokens = Utils::string_split(line, "\t ");
@@ -143,62 +167,82 @@ void	Request::_parse_first_line() {
 		_set_query(tokens[1].substr(question_pos + 1));
 	_set_path(tokens[1].substr(0, question_pos));
 	_set_protocol_info(tokens[2]);
+	// addLog(logFile,"Request first line> Protocol:" + tokens[2]);
+	_total_buffer.erase(0, 1);
+	_parse_steps = 1;
 }
 
 void	Request::_parse_headers() {
 	std::string header_line;
 
-	while (!_total_buffer.compare("\n")) {
+	header_line = _get_line();
+
+	if (!_line_found)
+		return;
+
+	if (!header_line.compare("\r")) { //when reaches end of header parse
 		_total_buffer.erase(0, 1);
-		header_line = _get_line();
-		if (header_line.compare("")) {
-			_set_headers(header_line);
-			//addLog(logFile,"Request parse headers> header_line:" + header_line);
-		}
+		_parse_steps = 2;
+		return ;
 	}
+
+	_set_headers(header_line);
+	_total_buffer.erase(0, 1);
 
 	if (_headers_error)
 		throw BadRequestError();
 }
 
 void	Request::_parse_full_body() {
+	int size = _validate_content_length();
+
+	_get_full_body(size);
+}
+
+void	Request::_parse_chunked_body() {
+	std::string chunk_size_str;
+
+	if (_chunk_parse == 0 || _chunk_parse == 1) {
+		chunk_size_str = _get_chunked_size_line();
+		if (!_line_found)
+			return;
+		else
+			_total_buffer.clear();
+
+		std::stringstream	s_stream(chunk_size_str);
+		s_stream >> std::hex >> _chunk_size;
+		_chunk_total_size += _chunk_size;
+		if (_chunk_size > 0)
+			_chunk_parse = 2;
+		else
+			_chunk_parse = 3;
+	}
+	else if (_chunk_parse == 2) {
+		_get_chunked_body_line(_chunk_size);
+		_chunk_parse = 1;
+	}
+
+	if (_chunk_parse == 3) {
+		// convert _chunk_total_size to string
+		std::stringstream string_chunk_size_stream;
+		string_chunk_size_stream << _chunk_total_size;
+		std::string chunk_total_size_string;
+		string_chunk_size_stream >> chunk_total_size_string;
+
+		_headers["Content-Length"] = chunk_total_size_string;
+		_parse_steps = 3;
+	}
+}
+
+int	Request::_validate_content_length() {
 	if (!Utils::is_number(_headers["Content-Length"].c_str()))
 		throw BadRequestError();
 
 	int size = std::atoi(_headers["Content-Length"].c_str());
 	if (size < 0)
 		throw BadRequestError();
-	_get_full_body(size);
-}
 
-void	Request::_parse_chunked_body() {
-	std::size_t chunk_size;
-	std::size_t chunk_total_size = 0;
-	std::string chunk_size_str;
-
-	chunk_size_str = _get_chunked_size_line();
-	std::stringstream	s_stream(chunk_size_str);
-
-	s_stream >> std::hex >> chunk_size;
-	chunk_total_size += chunk_size;
-
-	while (chunk_size > 0)
-	{
-		_get_chunked_body_line(chunk_size);
-		chunk_size_str = _get_chunked_size_line();
-		std::stringstream	s_stream(chunk_size_str);
-
-		s_stream >> std::hex >> chunk_size;
-		chunk_total_size += chunk_size;
-	}
-
-	// convert chunk_total_size to string
-	std::stringstream string_chunk_size_stream;
-	string_chunk_size_stream << chunk_total_size;
-	std::string chunk_total_size_string;
-	string_chunk_size_stream >> chunk_total_size_string;
-
-	_headers["Content-Length"] = chunk_total_size_string;
+	return size;
 }
 
 void	Request::_set_headers(std::string line) {
@@ -261,10 +305,14 @@ std::string							Request::protocol_version(void) const { return _protocol_versi
 ssize_t Request::_recv_safe(int __fd, void *__buf, size_t __n, int __flags) {
 	ssize_t bytes =	recv(__fd, __buf, __n, __flags);
 
-	if (bytes == -1)
+	if (bytes == -1 || bytes == 0)
 		throw RecvError();
 
 	return bytes;
+}
+
+int Request::is_complete(void) const {
+	return _is_complete;
 }
 
 
@@ -281,5 +329,6 @@ std::ostream &operator<<(std::ostream &out, const Request &request) {
 			out << " " << it->first << ": " << it->second << std::endl;
 
 	out << "Body: " << request.body() << std::endl;
+	out << "Is completes: " << request.is_complete() << std::endl;
 	return out;
 }

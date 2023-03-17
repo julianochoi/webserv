@@ -13,7 +13,9 @@ WebServ &WebServ::operator=(WebServ const &web_serv) {
 	return *this;
 }
 
-WebServ::~WebServ(void) {}
+WebServ::~WebServ(void) {
+	_client_list.clear();
+}
 
 std::vector<Server> WebServ::servers(void) const { return _servers; }
 
@@ -28,6 +30,9 @@ void WebServ::init(int argc, char **argv) {
 
 void WebServ::event_loop(void) {
 	int connections;
+	int client_fd;
+	size_t servers_size = _pollfds.size();
+
 
 	try {
 		addLog(logFile,"Start Polling");
@@ -37,10 +42,48 @@ void WebServ::event_loop(void) {
 			if (connections == -1)
 				throw PoolError();
 
-			for (std::vector<pollfd>::const_iterator pollfd = _pollfds.begin(); pollfd != _pollfds.end(); pollfd++)
-				if (pollfd->revents & POLLIN) {
-					Http http = Http(*pollfd, _servers);
-					http.handle();
+			for (size_t i = 0; i < servers_size; i++){
+				if (_pollfds[i].revents & POLLIN) {
+	        client_fd = accept(_pollfds[i].fd, NULL, NULL);
+
+					if (client_fd > 0) {
+						_client_list[client_fd] = Http(_pollfds[i], _servers, client_fd);
+
+						struct pollfd client_pollfd;
+						client_pollfd.fd = client_fd;
+						client_pollfd.events = POLLIN;
+						client_pollfd.revents = 0;
+
+						_pollfds.push_back(client_pollfd);
+					}
+
+				}
+			}
+
+
+				for (size_t i = _pollfds.size() - 1; i >= servers_size; i--) {
+					if (_pollfds[i].fd > 0 && (_pollfds[i].revents & POLLIN || _pollfds[i].revents & POLLOUT))
+					{
+
+							if (_pollfds[i].revents & POLLIN)
+								_client_list[_pollfds[i].fd].handle();
+							else if (_pollfds[i].revents & POLLOUT)
+								_client_list[_pollfds[i].fd].send_safe();
+
+							if (_client_list[_pollfds[i].fd].is_complete() == 1)
+								_pollfds[i].events = POLLOUT;
+							else if (_client_list[_pollfds[i].fd].is_complete() == 2)
+								_pollfds[i].fd = -1;
+
+					} else if (_pollfds[i].revents & POLLERR || _pollfds[i].revents & POLLRDHUP || _pollfds[i].revents & POLLNVAL || _pollfds[i].revents & POLLHUP) {
+						close(_pollfds[i].fd);
+						_pollfds.erase(_pollfds.begin() + i);
+					}
+
+					if (_pollfds[i].fd <= 0)
+					{
+						_pollfds.erase(_pollfds.begin() + i);
+					}
 				}
 		}
 	}
@@ -61,6 +104,9 @@ void WebServ::_start_listening(void) {
 
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_fd == -1)
+			throw SocketInitError();
+
+		if (fcntl(socket_fd, F_SETFL, O_NONBLOCK) == -1)
 			throw SocketInitError();
 
 		sockaddr bind_host_addrinfo = server->host_addrinfo();

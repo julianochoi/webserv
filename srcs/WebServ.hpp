@@ -4,6 +4,7 @@
 #include <vector>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 #include <iostream>
 #include <FileParser.hpp>
 #include <Server.hpp>
@@ -16,6 +17,8 @@ class WebServ {
 	private:
 		std::vector<Server>	_servers;
 		std::vector<pollfd> _pollfds;
+		std::map<int, Http> _client_list;
+
 
 		void _start_listening(void);
 

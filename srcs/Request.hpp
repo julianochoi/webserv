@@ -23,10 +23,17 @@ class Request {
 		std::map<std::string, std::string>	_query_map;
 		std::string							_protocol;
 		std::string							_protocol_version;
-		char								*_buffer;
+		char								_buffer;
 		int 								_client_fd;
 		std::string							_total_buffer;
 		bool										_headers_error;
+		int 						_is_complete;
+		int 						_parse_steps;
+		int 						_line_found;
+		int 						_chunk_parse;
+		std::size_t 		_chunk_total_size;
+		std::size_t			_chunk_size;
+
 
 
 		std::string		_get_line();
@@ -37,6 +44,7 @@ class Request {
 		void			_parse_headers();
 		void			_parse_chunked_body();
 		void			_parse_full_body();
+		int			_validate_content_length();
 
 		void			_set_headers(std::string line);
 		void			_set_body(std::string line);
@@ -56,6 +64,7 @@ class Request {
 		~Request(void);
 
 		void handle(void);
+		int is_complete(void) const;
 
 		std::map<std::string, std::string>	headers(void) const;
 		std::string							body(void) const;

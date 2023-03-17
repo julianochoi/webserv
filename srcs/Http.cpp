@@ -12,14 +12,37 @@ using namespace std;
 
 Http::Http(void) {}
 
-Http::Http(pollfd const &pollfd, std::vector<Server> servers): _pollfd(pollfd), _servers(servers), _has_location(false) {}
+Http::Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd): _pollfd(pollfd), _servers(servers), _has_location(false), _client_fd(client_fd), _is_complete(0) {
+	_request = Request(_pollfd, _client_fd);
+	_response = Response(_pollfd, _client_fd);
+}
 
 Http::Http(Http const &http) {
-	(void)http;
+	_pollfd = http._pollfd;
+  _servers = http._servers;
+  _http_server = http._http_server;
+  _http_location = http._http_location;
+  _has_location = http._has_location;
+  _remaining_path = http._remaining_path;
+  _request = http._request;
+  _response = http._response;
+  _client_fd = http._client_fd;
+  _is_complete = http._is_complete;
 }
 
 Http &Http::operator=(Http const &http) {
-	(void)http;
+	if (this != &http) {
+	_pollfd = http._pollfd;
+  _servers = http._servers;
+  _http_server = http._http_server;
+  _http_location = http._http_location;
+  _has_location = http._has_location;
+  _remaining_path = http._remaining_path;
+  _request = http._request;
+  _response = http._response;
+  _client_fd = http._client_fd;
+  _is_complete = http._is_complete;
+	}
 	return *this;
 }
 
@@ -37,16 +60,16 @@ void Http::handle() {
 	sprintf(temp, "%d", _pollfd.revents);
 	// addLog(logFile,"HTTP handle> REvents: " + std::string(temp));
 
-	_client_fd = accept(_pollfd.fd, NULL, NULL);
-
 	if (_client_fd == -1)
 		throw ClientConnectionError();
 
-	_request = Request(_pollfd, _client_fd);
-	_response = Response(_pollfd, _client_fd);
+	// std::cout << _request << std::endl;
 
 	try {
-		_request.handle();
+		if (!_request.is_complete())
+			_request.handle();
+		if (!_request.is_complete())
+			return;
 	} catch (Request::BadRequestError& e) {
 		addLog(logFile, "BadRequestError Catched");
 		_response_handle_safe("400", "", false, "");
@@ -64,6 +87,9 @@ void Http::handle() {
 		_response_handle_safe("500", "", false, "");
 		return ;
 	}
+
+	// std::cout << _request << std::endl;
+
 
 	// addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
 	sprintf(temp, "%d", _client_fd);
@@ -319,10 +345,21 @@ std::pair<std::string, std::string> Http::_http_redirect(void) const {
 void Http::_response_handle_safe(std::string statuscode, std::string pathHTML, bool autoindex, std::string data) {
 	try {
 		_response.handle(statuscode, pathHTML, autoindex, data);
+		_is_complete = 1;
 	} catch (...) {
 		addLog(logFile, "Response error Catched");
 		close(_client_fd);
 	}
+}
+
+int Http::is_complete(void) {
+	return _is_complete;
+}
+
+void Http::send_safe() {
+	_response.send_safe();
+	close(_client_fd);
+	_is_complete = 2;
 }
 
 
