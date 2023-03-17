@@ -287,7 +287,7 @@ std::string							Request::protocol_version(void) const { return _protocol_versi
 ssize_t Request::_recv_safe(int __fd, void *__buf, size_t __n, int __flags) {
 	ssize_t bytes =	recv(__fd, __buf, __n, __flags);
 
-	if (bytes == -1)
+	if (bytes == -1 || bytes == 0)
 		throw RecvError();
 
 	return bytes;
