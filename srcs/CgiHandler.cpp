@@ -171,10 +171,13 @@ std::string	CgiHandler::_get_cgi_output(std::FILE *tmp_out_file) {
 
 void CgiHandler::_send_cgi_response(int client_fd, std::string &buffer) {
     std::string status_line, response;
+    int bytes;
 
     status_line = "HTTP/1.1 200 OK\r\n";
     response = status_line + buffer;
-    send(client_fd, response.c_str(), response.length(), 0);
+    bytes = send(client_fd, response.c_str(), response.length(), 0);
+    if (bytes == 0 || bytes == 1)
+      throw std::exception();
     close(client_fd);
 }
 
@@ -254,5 +257,6 @@ void CgiHandler::handle(int client_fd, Request &request) {
 
     buffer = _get_cgi_output(tmp_out_file);
     _send_cgi_response(client_fd, buffer);
+    fclose(tmp_in_file);
     fclose(tmp_out_file);
 }

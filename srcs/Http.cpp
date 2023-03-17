@@ -102,6 +102,7 @@ void Http::handle() {
 	try {
 		if (_check_cgi(cgi_handler)) {
 			cgi_handler.handle(_client_fd, _request);
+			_is_complete = 2;
 			return;
 		}
 	}
