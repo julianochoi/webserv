@@ -20,6 +20,7 @@ class Request {
 		std::string							_method;
 		std::string							_path;
 		std::string							_query;
+		std::map<std::string, std::string>	_query_map;
 		std::string							_protocol;
 		std::string							_protocol_version;
 		char								_buffer;
@@ -70,6 +71,7 @@ class Request {
 		std::string							method(void) const;
 		std::string							path(void) const;
 		std::string							query(void) const;
+		std::map<std::string, std::string>	query_map(void) const;
 		std::string							protocol(void) const;
 		std::string							protocol_version(void) const;
 

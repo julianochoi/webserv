@@ -12,6 +12,7 @@ Request::Request(Request const &request) {
 	_method = request.method();
 	_path = request.path();
 	_query = request.query();
+	_query_map = request.query_map();
 	_protocol = request.protocol();
 	_protocol_version = request.protocol_version();
 	_buffer = request._buffer;
@@ -32,6 +33,7 @@ Request &Request::operator=(Request const &request) {
 	_method = request.method();
 	_path = request.path();
 	_query = request.query();
+	_query_map = request.query_map();
 	_protocol = request.protocol();
 	_protocol_version = request.protocol_version();
 	_buffer = request._buffer;
@@ -148,8 +150,9 @@ void	Request::_get_full_body(std::size_t size) {
 }
 
 void	Request::_parse_first_line() {
-	std::vector<std::string> tokens;
-	std::string							 line;
+	std::vector<std::string> tokens, path_tokens;
+	std::string line;
+	size_t question_pos;
 
 	line = _get_line();
 	if (!_line_found)
@@ -159,9 +162,10 @@ void	Request::_parse_first_line() {
 		throw URITooLongError();
 	tokens = Utils::string_split(line, "\t ");
 	_set_method(tokens[0]);
-	// addLog(logFile,"Request first line> Method:" + tokens[0]);
-	_set_path(tokens[1]);
-	// addLog(logFile,"Request first line> Path:" + tokens[1]);
+	question_pos = tokens[1].find("?");
+	if (question_pos != std::string::npos)
+		_set_query(tokens[1].substr(question_pos + 1));
+	_set_path(tokens[1].substr(0, question_pos));
 	_set_protocol_info(tokens[2]);
 	// addLog(logFile,"Request first line> Protocol:" + tokens[2]);
 	_total_buffer.erase(0, 1);
@@ -258,7 +262,20 @@ void	Request::_set_headers(std::string line) {
 void	Request::_set_body(std::string line) { (void)line; }
 void	Request::_set_method(std::string line) { _method = line; }
 void	Request::_set_path(std::string line) { _path = line; }
-void	Request::_set_query(std::string line) { (void)line; }
+void	Request::_set_query(std::string line) {
+		std::vector<std::string> query_params, query_pair;
+		std::vector<std::string>::iterator it;
+
+		query_params = Utils::string_split(line, "&");
+		for (it = query_params.begin(); it != query_params.end(); it++)
+		{
+			query_pair = Utils::string_split(*it, "=");
+			if (query_pair.size() != 2)
+				throw BadRequestError();
+			_query_map[query_pair[0]] = query_pair[1];
+		}
+		_query = line;
+	}
 void	Request::_set_protocol_info(std::string line) {
 	std::vector<std::string> protocol_infos = Utils::string_split(line, "/");
 
@@ -281,6 +298,7 @@ std::string							Request::body(void) const { return _body; }
 std::string							Request::method(void) const { return _method; }
 std::string							Request::path(void) const { return _path; }
 std::string							Request::query(void) const { return _query; }
+std::map<std::string, std::string>	Request::query_map(void) const { return _query_map; }
 std::string							Request::protocol(void) const { return _protocol; }
 std::string							Request::protocol_version(void) const { return _protocol_version; }
 

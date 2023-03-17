@@ -23,13 +23,15 @@ class Server {
 		int										_port;
 		std::map<int, std::string>				_erros_pages;
 		std::vector<std::string>				_http_methods;
-		std::pair<std::string, std::string>				_http_redirect;
+		std::pair<std::string, std::string>		_http_redirect;
 		std::string								_root;
 		int										_body_size_limit;
 		bool									_autoindex;
 		std::vector<std::string>				_index;
 		std::map<std::string, ServerLocation>	_locations;
 		std::string								_cgi_extension;
+		std::string								_cgi_path;
+		size_t									_cgi_timeout;
 
 		void	_parse_location_attributes(std::ifstream &fs, std::string line, std::string path);
 		void	_set_server_attributes(std::vector<std::string> line_tokens);
@@ -38,6 +40,7 @@ class Server {
 		void	_set_error_page_attribute(std::vector<std::string> line_tokens);
 		void	_set_client_body_size_attribute(std::vector<std::string> line_tokens);
 		void	_set_cgi_attribute(std::vector<std::string> line_tokens);
+		void	_set_cgi_timeout(std::vector<std::string> line_tokens);
 		void	_set_http_methods_attribute(std::vector<std::string> line_tokens);
 		void	_set_http_redirect_attribute(std::vector<std::string> line_tokens);
 		void	_set_root_attribute(std::vector<std::string> line_tokens);
@@ -69,6 +72,8 @@ class Server {
 		std::vector<std::string>				index(void) const;
 		std::map<std::string, ServerLocation>	locations(void) const;
 		std::string								cgi_extension(void) const;
+		std::string								cgi_path(void) const;
+		size_t									cgi_timeout(void) const;
 		ServerLocation							location(std::string path) const;
 
 	class InvalidServerParam : public std::exception
@@ -81,6 +86,12 @@ class Server {
 	{
 		public:
 			const char* what() const throw(){ return "Missing Server Args"; };
+	};
+
+	class InvalidNumberOfConfigArgs : public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid Number of Config Args"; };
 	};
 
 	class InvalidHost : public std::exception
@@ -105,6 +116,18 @@ class Server {
 	{
 		public:
 			const char* what() const throw(){ return "Invalid CGI Extension"; };
+	};
+
+	class InvalidCGIPath: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid CGI Path"; };
+	};
+
+	class InvalidCGITimeout: public std::exception
+	{
+		public:
+			const char* what() const throw(){ return "Invalid CGI Timeout"; };
 	};
 
 	class InvalidAutoIndexParam: public std::exception

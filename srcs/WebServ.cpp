@@ -38,9 +38,6 @@ void WebServ::event_loop(void) {
 		addLog(logFile,"Start Polling");
 
 		while (true) {
-			/*Looping fica ativo por 15 segundos, para criarmos um timeout*/
-			//if (std::difftime(std::time(0), TS) > 15)
-			//	break;
 			connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), -1);
 			if (connections == -1)
 				throw PoolError();

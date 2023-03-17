@@ -2,6 +2,7 @@
 #define UTILS_HPP
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <csignal>
 #include <stdlib.h>
@@ -44,6 +45,7 @@ namespace Utils {
 	bool file_exists(const std::string filename);
 	void handle_signal(int signal);
 	void listen_signals(void);
+	std::string itoa(int n);
 }
 
 

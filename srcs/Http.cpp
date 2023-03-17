@@ -98,6 +98,25 @@ void Http::handle() {
 	_set_location();
 	if (_validate_request())
 		return;
+	CgiHandler cgi_handler(this->_cgi_timeout());
+	try {
+		if (_check_cgi(cgi_handler)) {
+			cgi_handler.handle(_client_fd, _request);
+			return;
+		}
+	}
+	catch(const CgiHandler::UnsupportedCGI& e) {
+		_response_handle_safe("500", "", false, "");
+		return;
+	}
+	catch(const CgiHandler::CGIError& e) {
+		_response_handle_safe("500", "", false, "");
+		return;
+	}
+	catch(const CgiHandler::ChdirError& e) {
+		_response_handle_safe("500", "", false, "");
+		return;
+	}
 	_response_handler();
 }
 
@@ -130,6 +149,48 @@ void Http::_set_location() {
 	}
 }
 
+bool Http::_has_cgi_extension(std::string filename, std::string cgi_extension)
+{
+	size_t ext_len = cgi_extension.length();
+	size_t file_len = filename.length();
+	std::string file_ext;
+
+	try
+	{
+		file_ext = filename.substr(file_len - ext_len);
+	}
+	catch(const std::out_of_range& e)
+	{
+		return false;
+	}
+	return file_ext == cgi_extension;
+}
+
+bool Http::_check_cgi(CgiHandler &cgi_handler)
+{
+	std::vector<std::string> tokens;
+	std::string cgi_extension, filename, filepath, full_path;
+
+	cgi_extension = _cgi_extension();
+	if (!cgi_extension.length() || !_remaining_path.length())
+		return false;
+	if (this->_request.method() != "GET" && this->_request.method() != "POST")
+		return false;
+	tokens = Utils::string_split(_remaining_path, "/");
+	if (tokens.size() > 1 && tokens[0] == "cgi-bin")
+		filename = tokens[1];
+	else
+		return false;
+	if (_has_cgi_extension(filename, cgi_extension))
+	{
+		filepath = _root() + "/cgi-bin/" + filename;
+		full_path = _root() + _remaining_path;
+		cgi_handler.build(_http_server, _http_location, _request, filepath, full_path);
+		return true;
+	}
+	return false;
+}
+
 void Http::_response_handler() {
 	std::string response_file_path;
 
@@ -153,12 +214,15 @@ void Http::_response_handler() {
 
 void Http::_get_handler(std::string response_file_path) {
 	std::string prevStatusCode = "500";
-	std::string prevPath = "";
+	std::string prevPath = response_file_path;
 
-
-	if (Utils::file_exists(response_file_path)) {
+	if (isDirectory(response_file_path) && !_autoindex()) {
 		prevStatusCode = "200";
-		prevPath = response_file_path;
+		prevPath = prevPath + "/" + _index();
+	}
+
+	if (Utils::file_exists(prevPath)) {
+		prevStatusCode = "200";
 	}
 	else {
 		prevStatusCode = "404";
@@ -180,7 +244,10 @@ bool Http::_validate_request() {
 	if (_request.headers()["Content-Length"].length() && std::atoi(_request.headers()["Content-Length"].c_str()) > _body_size_limit())
 		has_error = true;
 	else if (allowed_methods.size() && !std::count(allowed_methods.begin(), allowed_methods.end(), _request.method()))
+	{
 		has_error = true;
+		prev_status_code = "405";
+	}
 
 	if(has_error)
 		_response_handle_safe(prev_status_code, _get_file_error(prev_status_code), false, "");
@@ -207,6 +274,30 @@ std::string Http::_root(void) const {
 		return _http_location.root();
 	else
 		return _http_server.root();
+}
+
+
+std::string Http::_cgi_extension(void) const {
+	if (_has_location)
+		return _http_location.cgi_extension();
+	else
+		return _http_server.cgi_extension();
+}
+
+
+std::string Http::_cgi_path(void) const {
+	if (_has_location)
+		return _http_location.cgi_path();
+	else
+		return _http_server.cgi_path();
+}
+
+
+size_t Http::_cgi_timeout(void) const {
+	if (_has_location)
+		return _http_location.cgi_timeout();
+	else
+		return _http_server.cgi_timeout();
 }
 
 std::string Http::_index(void) const {
