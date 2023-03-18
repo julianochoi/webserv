@@ -23,6 +23,7 @@ class Http {
 		Response				_response;
 		int 						_client_fd;
 		int 						_is_complete;
+		std::time_t			_start_time;
 
 
 		void _set_http_server();
@@ -33,7 +34,7 @@ class Http {
 		void _get_handler(std::string response_file_path);
 		bool _validate_request();
 		std::string _get_file_error(std::string status_code);
- 
+
 		std::string								_root(void) const;
 		std::string								_index(void) const;
 		std::string								_cgi_extension(void) const;
@@ -50,13 +51,14 @@ class Http {
 	public:
 		Http(void);
 		Http(Http const &http);
-		Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd);
+		Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd, std::time_t start_time);
 		Http& operator=(Http const &http);
 		~Http(void);
 
 		void handle();
 		void send_safe();
 		int is_complete();
+		bool timeout(std::time_t current);
 
 	class ClientConnectionError : public std::exception	{
 		public:

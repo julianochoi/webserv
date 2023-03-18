@@ -38,7 +38,7 @@ void WebServ::event_loop(void) {
 		addLog(logFile,"Start Polling");
 
 		while (true) {
-			connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), -1);
+			connections = poll((pollfd *)&(*_pollfds.begin()), _pollfds.size(), 15000);
 			if (connections == -1)
 				throw PoolError();
 
@@ -47,7 +47,7 @@ void WebServ::event_loop(void) {
 	        client_fd = accept(_pollfds[i].fd, NULL, NULL);
 
 					if (client_fd > 0) {
-						_client_list[client_fd] = Http(_pollfds[i], _servers, client_fd);
+						_client_list[client_fd] = Http(_pollfds[i], _servers, client_fd, std::time(0));
 
 						struct pollfd client_pollfd;
 						client_pollfd.fd = client_fd;
@@ -62,6 +62,11 @@ void WebServ::event_loop(void) {
 
 
 				for (size_t i = _pollfds.size() - 1; i >= servers_size; i--) {
+					if (_client_list[_pollfds[i].fd].timeout(std::time(0))) {
+						close(_pollfds[i].fd);
+						_pollfds[i].fd = -1;
+					}
+
 					if (_pollfds[i].fd > 0 && (_pollfds[i].revents & POLLIN || _pollfds[i].revents & POLLOUT))
 					{
 

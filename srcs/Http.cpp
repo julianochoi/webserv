@@ -12,7 +12,7 @@ using namespace std;
 
 Http::Http(void) {}
 
-Http::Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd): _pollfd(pollfd), _servers(servers), _has_location(false), _client_fd(client_fd), _is_complete(0) {
+Http::Http(pollfd const &pollfd, std::vector<Server> servers, int client_fd, std::time_t start_time): _pollfd(pollfd), _servers(servers), _has_location(false), _client_fd(client_fd), _is_complete(0), _start_time(start_time) {
 	_request = Request(_pollfd, _client_fd);
 	_response = Response(_pollfd, _client_fd);
 }
@@ -28,6 +28,7 @@ Http::Http(Http const &http) {
   _response = http._response;
   _client_fd = http._client_fd;
   _is_complete = http._is_complete;
+  _start_time = http._start_time;
 }
 
 Http &Http::operator=(Http const &http) {
@@ -42,6 +43,7 @@ Http &Http::operator=(Http const &http) {
   _response = http._response;
   _client_fd = http._client_fd;
   _is_complete = http._is_complete;
+  _start_time = http._start_time;
 	}
 	return *this;
 }
@@ -362,6 +364,11 @@ void Http::send_safe() {
 	close(_client_fd);
 	_is_complete = 2;
 }
+
+bool Http::timeout(std::time_t current) {
+	return std::difftime(current, _start_time) > 7;
+}
+
 
 
 std::ostream &operator<<(std::ostream &out, const Http &http) {
