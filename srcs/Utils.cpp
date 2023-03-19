@@ -17,7 +17,6 @@ using namespace std;
 bool isFile(const std::string& path) {
     struct stat path_stat;
     if (stat(path.c_str(), &path_stat) != 0) {
-        // std::cerr << "Error: stat failed on " << path << std::endl;
         return false;
     }
     return S_ISREG(path_stat.st_mode);
@@ -26,7 +25,6 @@ bool isFile(const std::string& path) {
 bool isDirectory(const std::string& path) {
     struct stat path_stat;
     if (stat(path.c_str(), &path_stat) != 0) {
-        // std::cerr << "Error: stat failed on " << path << std::endl;
         return false;
     }
     return S_ISDIR(path_stat.st_mode);
@@ -112,10 +110,8 @@ namespace Utils {
 			int len = str.length(), i = -1;
 			int start_index = 0, size;
 
-			while (++i < len)
-			{
-				while (seperators.find(str[i]) != std::string::npos)
-				{
+			while (++i < len) {
+				while (seperators.find(str[i]) != std::string::npos) {
 					i++;
 					continue ;
 				}
@@ -157,8 +153,7 @@ namespace Utils {
 		return true;
 	}
 
-	bool file_exists(const std::string filename)
-	{
+	bool file_exists(const std::string filename) {
 		return access(filename.c_str(), F_OK) == 0;
 	}
 

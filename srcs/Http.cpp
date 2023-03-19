@@ -57,10 +57,7 @@ void Http::handle() {
 	// std::cout << _pollfd.revents << std::endl;
 
 	sprintf(temp, "%d", _pollfd.fd);
-	// addLog(logFile,"HTTP handle> FD: " + std::string(temp));
-
 	sprintf(temp, "%d", _pollfd.revents);
-	// addLog(logFile,"HTTP handle> REvents: " + std::string(temp));
 
 	if (_client_fd == -1)
 		throw ClientConnectionError();
@@ -93,7 +90,6 @@ void Http::handle() {
 	// std::cout << _request << std::endl;
 
 
-	// addLog(logFile,"HTTP handle> Client FD: " + std::string(temp));
 	sprintf(temp, "%d", _client_fd);
 	_set_http_server();
 	// std::cout << _http_server << std::endl;
@@ -201,7 +197,6 @@ void Http::_response_handler() {
 		response_file_path.append(_root()).append("/").append(_index());
 	else
 		response_file_path.append(_root()).append(_remaining_path);
-	// addLog(logFile, "Response File Path: " + response_file_path);
 
 	if (_http_redirect().first.length()) {
 		_response_handle_safe(_http_redirect().first, response_file_path, false, _http_redirect().second);
@@ -232,8 +227,6 @@ void Http::_get_handler(std::string response_file_path) {
 		prevPath = _get_file_error(prevStatusCode);
 	}
 
-	// addLog(logFile,"Status Code: " + prevStatusCode);
-	// addLog(logFile,"Path: " + prevPath);
 	_response_handle_safe(prevStatusCode, prevPath, _autoindex(), "");
 }
 
