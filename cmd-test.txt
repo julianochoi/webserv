@@ -1,0 +1,11 @@
+curl --resolve example.com:3490:127.0.0.1 http://example.com
+curl -X POST http://localhost:3490/list/upload -H "Content-Type: plain/text" --data "BODY IS HERE write\nsomething shorter or longer than body limit"
+curl -X POST http://localhost:3490/list/upload -H "Content-Type: plain/text" --data "body limit"
+curl -X GET http://localhost:3490/list/upload
+curl -X DELETE http://localhost:3490/list/upload
+curl -X DELETE http://localhost:3490
+curl -X UNKNOW http://localhost:3490
+curl -X POST http://localhost:3490/list/upload -H "Content-Type: plain/text" --data-binary "@Makefile"
+
+./webserv ./config_files/same-port-error.conf
+siege -b http://127.0.0.1:3490/empty

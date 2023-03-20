@@ -240,8 +240,10 @@ void Response::send_safe() {
 
 		ssize_t bytes =	send(_client_fd, _response_buffer.c_str(), _response_buffer.length(), MSG_NOSIGNAL);
 
-		if (bytes == -1 || bytes == 0)
+		if (bytes == -1 || bytes == 0) {
+			close(_client_fd);
 			throw SendError();
+		}
 	// }
 }
 
